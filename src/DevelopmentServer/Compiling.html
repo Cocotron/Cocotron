@@ -1,0 +1,49 @@
+
+
+<html>
+
+<head>
+
+    <title>Compiling Project</title>
+
+    <style>
+        body, html {
+            background:#c0c0c0;
+            color:#3f3f3f;
+        }
+
+        .msg {
+            background:#fff;
+            border:1px solid #aaa;
+            padding:15px;
+            font:16px Arial;
+            margin:12px;
+            box-shadow: 0 1px 5px #b0b0b0;
+        }
+
+    </style>
+
+</head>
+
+<body>
+    <div class="msg">Compiling...</div>
+</body>
+
+
+<script type="text/javascript">
+        
+        var interval; 
+        var req = new XMLHttpRequest;
+        req.onload = function() {
+            if(this.status === 200){
+                window.location.reload();
+            }
+        }
+    
+        interval = setInterval(function(){
+            req.open("GET", "/buildStatus");
+            req.send();
+        }, 50);
+</script>
+
+</html>

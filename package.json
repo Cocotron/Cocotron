@@ -1,0 +1,15 @@
+{
+    "name": "cocomake",
+    "version": "0.0.1",
+    "description": "Compiler and build system for Objective-J and Cocotron",
+    "scripts": {
+        "make": "node ./src/Make.js"
+    },
+    "license": "MIT",
+    "dependencies": {
+        "express": "^4.18.2",
+        "less": "^4.1.3",
+        "source-map": "^0.7.4",
+        "terser": "^5.16.1"
+    }
+}
