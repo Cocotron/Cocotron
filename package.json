@@ -1,5 +1,5 @@
 {
-    "name": "cocomake",
+    "name": "cocotron",
     "version": "0.0.1",
     "description": "Compiler and build system for Objective-J and Cocotron",
     "license": "MIT",
