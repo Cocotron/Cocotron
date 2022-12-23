@@ -34,17 +34,18 @@ const concatOutput = function (out) {
   const { resources, styles } = bundle;
   code += `${JSON.stringify({ resources, styles })}\n\n`;
 
+  const offset = code.split("\n").length;
+
   for (const file of files) {
-    const out = compilationMap.get(file.path); 
+    const out = compilationMap.get(file.path);
     code += out.code + "\n";
   }
 
-  return { code, compilationMap };
+  return { code, compilationMap, offset };
 };
 
 const writeDebugOutput = async function (out) {
-  const { code, compilationMap } = concatOutput(out);
-  const offset = code.split("\n").length;
+  const { code, compilationMap, offset } = concatOutput(out);
 
   const sourceMapFile = await createSourceMap(compilationMap.values(), offset);
   fs.writeFileSync(

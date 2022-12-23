@@ -31,6 +31,14 @@ const preprocess = async function (filePath, lastCompile) {
   for (const file of files) {
     if (!isFileUpToDate(file, lastCompile)) {
       promises.push(expandMacros(file));
+    } else {
+      promises.push(
+        new Promise((finish) => {
+          finish({
+            path: file
+          });
+        })
+      );
     }
   }
 

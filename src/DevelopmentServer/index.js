@@ -21,9 +21,15 @@ var lastCompile = null,
 /**
  * Watch files for changes, to mark the build as dirty
  */
-fs.watch(path.dirname(PACKAGE.main), { recursive: true }, () => {
+fs.watch(FileLocations.SRC_DIR, { recursive: true }, () => {
   isDirty = true;
 });
+
+if (path.dirname(PACKAGE.main) !== FileLocations.SRC_DIR) {
+  fs.watch(path.dirname(PACKAGE.main), { recursive: true }, () => {
+    isDirty = true;
+  });
+}
 
 app.get("/", async (_, res) => {
   if (isDirty) {
