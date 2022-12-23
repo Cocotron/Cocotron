@@ -9,7 +9,7 @@ const packageJsonTemplate = function (projectName, isFramework) {
     version: "0.0.1",
     description: "",
     isFramework: isFramework,
-    main: isFramework ? `src/${projectName}.j` : "src/main.j",
+    main: isFramework ? `tests/tests.j` : "src/main.j",
   };
 };
 
@@ -33,6 +33,8 @@ const createProject = function (projectName, isFramework = false) {
 
   if (isFramework) {
     writeFile(path.join(rpath, `src/${projectName}.j`), "");
+    makeDirIfNeeded(path.join(rpath, "tests"));
+    writeFile(path.join(rpath, "tests/tests.j"), "");
   } else {
     writeFile(path.join(rpath, "src/main.j"), mainTemplate);
   }

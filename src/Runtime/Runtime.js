@@ -42,6 +42,10 @@ var CLS_CLASS           = 0x1,
 #define MAXIMUM_RECURSION_DEPTH 80
 
 
+if(typeof global === "undefined") {
+    global = window; 
+}
+
 
 var OBJECT_COUNT   = 0;
 
@@ -676,9 +680,7 @@ var CONTEXT_BUNDLE = nil;
 GLOBAL(objj_registerClassPair) = function(/*Class*/ aClass)
 {
     global[aClass.name] = aClass;
-    REGISTERED_CLASSES[aClass.name] = aClass;
-
-    addClassToBundle(aClass, CONTEXT_BUNDLE);
+    REGISTERED_CLASSES[aClass.name] = aClass; 
 }
 
 GLOBAL(objj_resetRegisterClasses) = function()
@@ -688,9 +690,7 @@ GLOBAL(objj_resetRegisterClasses) = function()
 
     REGISTERED_CLASSES = Object.create(null);
     REGISTERED_PROTOCOLS = Object.create(null);
-    REGISTERED_TYPEDEFS = Object.create(null);
-
-    resetBundle();
+    REGISTERED_TYPEDEFS = Object.create(null); 
 }
 
 // Instantiating Classes
