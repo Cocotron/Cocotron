@@ -3,19 +3,20 @@ const path = require("path");
 const child_process = require("child_process");
 const { makeDirIfNeeded } = require("./Utils");
 
-const packageJsonTemplate = function (projectName) {
+const packageJsonTemplate = function (projectName, isFramework) {
   return {
     name: projectName,
     version: "0.0.1",
     description: "",
-    main: "src/main.j",
+    isFramework: isFramework,
+    main: isFramework ? `src/${projectName}.j` : "src/main.j",
   };
 };
 
 const mainTemplate = `\n#import <Cocotron/Cocotron.j>\n\nalert("Hello from Cocotron!");\n\n`;
 const htmlTemplate = `<html>\n<head>\n<title>Cocotron</title>\n</head>\n<body></body>\n</html>`;
 
-const createProject = function (projectName) {
+const createProject = function (projectName, isFramework = false) {
   const rpath = path.resolve(path.join(process.cwd(), projectName));
 
   if (fs.existsSync(rpath)) {
@@ -26,10 +27,16 @@ const createProject = function (projectName) {
   makeDirIfNeeded(rpath);
   writeFile(
     path.join(rpath, "package.json"),
-    JSON.stringify(packageJsonTemplate(projectName))
+    JSON.stringify(packageJsonTemplate(projectName, isFramework), null, "\t")
   );
   makeDirIfNeeded(path.join(rpath, "src"));
-  writeFile(path.join(rpath, "src/main.j"), mainTemplate);
+
+  if (isFramework) {
+    writeFile(path.join(rpath, `src/${projectName}.j`), "");
+  } else {
+    writeFile(path.join(rpath, "src/main.j"), mainTemplate);
+  }
+
   makeDirIfNeeded(path.join(rpath, "src/styles"));
   makeDirIfNeeded(path.join(rpath, "src/resources"));
 

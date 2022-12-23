@@ -5,7 +5,11 @@ const less = require("less");
 const { ResourceMimeTypes, encodeResource } = require("./ResourceProcessor");
 const FileLocations = require("../FileLocations");
 const { getFilesInDirectory } = require("../Utils");
-const PACKAGE = require(FileLocations.PROJECT_PACKAGE);
+
+let PACKAGE = {};
+if (fs.existsSync(FileLocations.PROJECT_PACKAGE)) {
+  PACKAGE = require(FileLocations.PROJECT_PACKAGE);
+}
 
 const getBundle = async function () {
   const bundlePaths = [];
@@ -30,7 +34,8 @@ const getBundle = async function () {
       );
 
       for (const file of resourceFiles) {
-        base64Resources[path.relative(resourcesDir, file)] = encodeResource(file);
+        base64Resources[path.relative(resourcesDir, file)] =
+          encodeResource(file);
       }
     }
 

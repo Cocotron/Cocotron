@@ -58,7 +58,9 @@ GLOBAL(objj_ivar) = function(/*String*/ aName, /*String*/ aType)
 
 GLOBAL(objj_method) = function(/*String*/ aName, /*IMP*/ anImplementation, /*Array<String>*/ types)
 {
-    var method = anImplementation || function(/*id*/ aReceiver, /*SEL*/ aSelector) {CPException.isa.objj_msgSend2(CPException, "raise:reason:", CPInternalInconsistencyException, aReceiver.isa.method_msgSend0(self, "className") + " does not have an implementation for selector '" + aSelector + "'")};
+    var method = anImplementation || function(/*id*/ aReceiver, /*SEL*/ aSelector) {
+         throw new Error(aReceiver.isa.method_msgSend0(self, "className") + " does not have an implementation for selector '" + aSelector + "'");
+    };
     method.method_name = aName;
     method.method_imp = anImplementation;
     method.method_types = types;
