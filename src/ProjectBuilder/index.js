@@ -5,13 +5,8 @@ const SourceMapper = require("./SourceMapper");
 const { minify } = require("terser");
 
 const FileLocations = require("../FileLocations");
-const { buildProject, writeCompilationOutput } = require("./Compiler");
-
-const makeDirIfNeeded = function (dirPath) {
-  if (!fs.existsSync(path.resolve(dirPath))) {
-    fs.mkdirSync(path.resolve(dirPath), { recursive: true });
-  }
-};
+const { buildProject } = require("./Compiler");
+const { makeDirIfNeeded } = require("../Utils");
 
 const buildDebug = function (mainFilePath, lastCompile) {
   const startTime = performance.now();
@@ -33,20 +28,18 @@ const buildDebug = function (mainFilePath, lastCompile) {
 };
 
 const concatOutput = function (out) {
-  const { bundles, compilationMap } = out;
+  const { bundle, compilationMap, files } = out;
 
-  let code = "\nvar __$objj_bundles = {";
-  for (const bundle of bundles) {
-    const { resources, styles } = bundle;
-    const bundleName = path.basename(bundle.path);
-    code += `\n"${bundleName}" : ${JSON.stringify({ resources, styles })},\n`;
-  }
-  code += "}\n\n";
+  let code = "\nvar __$objj_bundle = ";
+  const { resources, styles } = bundle;
+  code += `${JSON.stringify({ resources, styles })}\n\n`;
 
-  for (const [_, file] of compilationMap) {
-    code += file.code + "\n";
+  for (const file of files) {
+    const out = compilationMap.get(file.path); 
+    code += out.code + "\n";
   }
-  return { code, bundles, compilationMap };
+
+  return { code, compilationMap };
 };
 
 const writeDebugOutput = async function (out) {
@@ -92,8 +85,7 @@ const buildRelease = function (mainFilePath) {
 
 const writeReleaseOutput = async function (out) {
   const { code } = concatOutput(out);
-
-  var minified = await minify(code);
+  var minified = await minify(code, { module: true });
   fs.writeFileSync(
     FileLocations.BUILD_DIR_RELEASE + "/release.js",
     minified,

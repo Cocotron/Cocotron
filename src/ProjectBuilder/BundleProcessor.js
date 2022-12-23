@@ -1,81 +1,85 @@
 const fs = require("fs");
 const path = require("path");
 const less = require("less");
- 
-const { ImageMimeTypes, encodeImage } = require("./ImageProcessor");
+
+const { ResourceMimeTypes, encodeResource } = require("./ResourceProcessor");
 const FileLocations = require("../FileLocations");
+const { getFilesInDirectory } = require("../Utils");
 const PACKAGE = require(FileLocations.PROJECT_PACKAGE);
 
+const getBundle = async function () {
+  const bundlePaths = [];
+  //add the main bundle
+  bundlePaths.push(FileLocations.SRC_DIR);
+  //add the frameworks
+  const frameworks = PACKAGE.frameworks || [];
+  for (const framework of frameworks) {
+    bundlePaths.push(path.join(FileLocations.FRAMEWORKS_DIR, framework));
+  }
 
-const getFilesInDirectory = function (dirPath) {
-    const files = [];
-    const items = fs.readdirSync(dirPath);
-    for (const item of items) {
-      const r_path = path.join(dirPath, item);
-      if (fs.statSync(r_path).isDirectory()) {
-        const subitems = getFilesInDirectory(r_path);
-        for (const subitem of subitems) {
-          files.push(subitem);
-        }
-      } else {
-        files.push(r_path);
-      }
-    }
-    return files;
-  };
-
-
-const getBundles = async function () {
-  const bundlePaths = PACKAGE.bundles;
-  const bundles = [];
+  const base64Resources = {};
+  const lessPromises = [];
   for (const bundle of bundlePaths) {
     const bundlePath = path.resolve(bundle);
-    const base64Resources = {};
-    const lessPromises = [];
-    const bundleFiles = getFilesInDirectory(bundlePath);
-    for (const bf of bundleFiles) {
-      const extName = path.extname(bf);
-      if (Object.keys(ImageMimeTypes).includes(extName)) {
-        base64Resources[path.relative(bundlePath, bf)] = encodeImage(bf);
-      } else if ([".css", ".less"].includes(extName)) {
+    //get the resources
+    const resourcesDir = path.join(bundlePath, "resources");
+    if (fs.existsSync(resourcesDir)) {
+      const resourceFiles = getFilesInDirectory(
+        resourcesDir,
+        Object.keys(ResourceMimeTypes)
+      );
+
+      for (const file of resourceFiles) {
+        base64Resources[path.relative(resourcesDir, file)] = encodeResource(file);
+      }
+    }
+
+    const stylesDir = path.join(bundlePath, "styles");
+    if (fs.existsSync(stylesDir)) {
+      //get the styles
+      const styleFiles = getFilesInDirectory(stylesDir, [".less", ".css"]);
+
+      for (const file of styleFiles) {
         lessPromises.push(
-          less.render(fs.readFileSync(bf, "utf-8"), {
+          less.render(fs.readFileSync(file, "utf-8"), {
             sourceMap: { sourceMap: true },
-            filename: bf,
+            filename: file,
           })
         );
       }
     }
-    const styles = {};
-    const results = await Promise.all(lessPromises);
-    const seenFiles = new Set();
-    for (const result of results) {
-      if (result.map) {
-        const sourceMap = JSON.parse(result.map);
-        const sources = sourceMap.sources;
-        const sourceFile = sourceMap.sources[sourceMap.sources.length - 1];
-        const importedStyles = result.imports;
-        for (const im of importedStyles) {
-          if (seenFiles.has(im)) {
-            delete styles[im];
-          }
-        }
-        seenFiles.add(...importedStyles);
-        if (!seenFiles.has(sourceFile)) {
-          styles[sourceFile] = result.css.replace(/[\r\n]+/gm, "");
-          seenFiles.add(...sources);
+  }
+
+  //concat less
+  const styles = {};
+  const results = await Promise.all(lessPromises);
+  const seenFiles = new Set();
+  for (const result of results) {
+    if (result.map) {
+      const sourceMap = JSON.parse(result.map);
+      const sources = sourceMap.sources;
+      const sourceFile = sourceMap.sources[sourceMap.sources.length - 1];
+      const importedStyles = result.imports;
+      for (const im of importedStyles) {
+        if (seenFiles.has(im)) {
+          delete styles[im];
         }
       }
+      seenFiles.add(...importedStyles);
+      if (!seenFiles.has(sourceFile)) {
+        styles[path.relative(FileLocations.SRC_DIR, sourceFile)] =
+          result.css.replace(/[\r\n]+/gm, "");
+        seenFiles.add(...sources);
+      }
     }
-    bundles.push({
-      path: bundlePath,
-      resources: base64Resources,
-      styles: Object.values(styles),
-    });
   }
-  return bundles;
+
+  return {
+    resources: base64Resources,
+    styles: styles,
+  };
 };
 
 module.exports = {
-  getBundles,
+  getBundle,
 };

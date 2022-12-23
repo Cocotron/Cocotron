@@ -3,7 +3,7 @@ const path = require("path");
 const FileLocations = require("../FileLocations");
 const child_process = require("child_process");
 
-const { removeFirstAndLastChar } = require("./Utils");
+const { removeFirstAndLastChar } = require("../Utils");
 
 const getDependenciesFromPreprocessor = function (filePath) {
   return new Promise((finish, fail) => {

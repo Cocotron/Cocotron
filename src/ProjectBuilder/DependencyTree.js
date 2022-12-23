@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const { removeFirstAndLastChar } = require("./Utils.js");
+const { removeFirstAndLastChar } = require("../Utils.js");
 const FileLocations = require("../FileLocations");
 const { getDependenciesFromPreprocessor } = require("./Preprocessor");
 

@@ -1,10 +1,5 @@
 const FileLocations = require("../FileLocations");
-const {
-  buildDebug,
-  compileFile,
-  writeCompilationOutput,
-  expandMacros,
-} = require("../ProjectBuilder");
+const { buildDebug } = require("../ProjectBuilder");
 
 const PACKAGE = require(FileLocations.PROJECT_PACKAGE);
 
@@ -38,7 +33,13 @@ app.get("/", async (_, res) => {
     isDirty = false;
     res.send(compileHtml);
   } else {
-    res.sendFile(indexFile);
+    const html = fs.readFileSync(indexFile, "utf-8");
+    const final =
+      html.substring(0, html.length - 7) +
+      `<script src="Objective-J.js" type="text/javascript"></script>\n` +
+      `<script src="build/Debug/debug.js" type="text/javascript"></script>\n` +
+      html.substring(html.length - 7);
+    res.send(final);
   }
 });
 

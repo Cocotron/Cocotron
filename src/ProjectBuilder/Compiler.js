@@ -8,7 +8,7 @@ const {
 } = require("./DependencyTree");
 
 const { expandMacros } = require("./Preprocessor");
-const { getBundles } = require("./BundleProcessor");
+const { getBundle } = require("./BundleProcessor");
 
 const isFileUpToDate = function (filePath, lastCompile) {
   if (!lastCompile) {
@@ -42,10 +42,10 @@ const preprocess = async function (filePath, lastCompile) {
       });
     }
   });
-  const bundles = await getBundles();
+  const bundle = await getBundle();
   return {
     files: preprocessedFiles,
-    bundles,
+    bundle,
   };
 };
 
@@ -77,7 +77,7 @@ const buildProject = function (mainFilePath, lastCompile) {
   let compilationMap = lastCompile ? lastCompile.compilationMap : new Map();
   return new Promise(async (finish, fail) => {
     const r_mainFilePath = path.resolve(mainFilePath);
-    const { files, bundles } = await preprocess(r_mainFilePath, lastCompile);
+    const { files, bundle } = await preprocess(r_mainFilePath, lastCompile);
     for (const file of files) {
       if (!isFileUpToDate(file.path, lastCompile)) {
         try {
@@ -89,12 +89,12 @@ const buildProject = function (mainFilePath, lastCompile) {
     }
     finish({
       time: new Date().getTime(),
+      files,
       compilationMap,
-      bundles,
+      bundle,
     });
   });
 };
-
 
 module.exports = {
   compileFile,

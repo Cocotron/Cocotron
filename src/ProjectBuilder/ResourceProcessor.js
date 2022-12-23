@@ -1,21 +1,25 @@
 const path = require("path");
 const fs = require("fs");
+const svgToMiniDataURI = require("mini-svg-data-uri");
 
-const ImageMimeTypes = {
+const ResourceMimeTypes = {
   ".jpg": "image/jpeg",
   ".jpeg": "image/jpeg",
   ".png": "image/png",
   ".gif": "image/gif",
   ".svg": "image/svg+xml",
   ".webp": "image/webp",
+  ".pdf": "application/pdf",
+  ".ogg": "audio/ogg",
+  ".mp3": "audio/mp3",
 };
 
 const getDataUri = ({ format, isSvg, mime, source }) =>
   isSvg ? svgToMiniDataURI(source) : `data:${mime};${format},${source}`;
 
-const encodeImage = function (filePath) {
-  const mime = ImageMimeTypes[path.extname(filePath)];
-  const isSvg = this.mimeType === "image/svg+xml";
+const encodeResource = function (filePath) {
+  const mime = ResourceMimeTypes[path.extname(filePath)];
+  const isSvg = mime === "image/svg+xml";
   const format = isSvg ? "utf-8" : "base64";
   const source = fs.readFileSync(filePath, format).replace(/[\r\n]+/gm, "");
 
@@ -23,6 +27,6 @@ const encodeImage = function (filePath) {
 };
 
 module.exports = {
-  encodeImage,
-  ImageMimeTypes,
+  encodeResource,
+  ResourceMimeTypes,
 };
