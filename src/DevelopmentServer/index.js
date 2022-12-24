@@ -35,9 +35,16 @@ app.get("/", async (_, res) => {
   if (isDirty) {
     const compileHtml = fs.readFileSync(__dirname + "/Compiling.html", "utf-8");
     console.log("Building DEBUG...");
-    lastCompile = await buildDebug(path.resolve(PACKAGE.main), lastCompile);
-    isDirty = false;
-    res.send(compileHtml);
+    try {
+      lastCompile = await buildDebug(path.resolve(PACKAGE.main), lastCompile);
+      isDirty = false;
+      res.send(compileHtml);
+    } catch (e) {
+      console.error(e);
+      res.send(
+        `<html>\n<head>\n<title>Error</title>\n</head>\n<body>\n<pre style="font-size:16px;color:red;">${e.stack}</pre>\n</body>\n</html>`
+      );
+    }
   } else {
     const html = fs.readFileSync(indexFile, "utf-8");
     const final =

@@ -96,11 +96,15 @@ const flattenDependencyTree = function (tree) {
 
 const getDependencyTree = async function (filePath) {
   const r_filePath = path.resolve(filePath);
-  const availableDependencies = await getDependenciesFromPreprocessor(
-    r_filePath
-  );
-  availableDependencies.add(r_filePath);
-  return _getDependencyTree(r_filePath, availableDependencies);
+  try {
+    const availableDependencies = await getDependenciesFromPreprocessor(
+      r_filePath
+    );
+    availableDependencies.add(r_filePath);
+    return _getDependencyTree(r_filePath, availableDependencies);
+  } catch (e) {
+    throw new Error(e);
+  }
 };
 
 module.exports = {

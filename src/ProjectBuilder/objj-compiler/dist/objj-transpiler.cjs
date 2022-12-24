@@ -8266,81 +8266,107 @@
 
   function isIdempotentExpression(node) {
     switch (node.type) {
-      case 'Literal':
-      case 'Identifier':
-        return true
+      case "Literal":
+      case "Identifier":
+        return true;
 
-      case 'ArrayExpression':
+      case "ArrayExpression":
         for (let i = 0; i < node.elements.length; ++i) {
-          if (!isIdempotentExpression(node.elements[i])) { return false }
+          if (!isIdempotentExpression(node.elements[i])) {
+            return false;
+          }
         }
 
-        return true
+        return true;
 
-      case 'DictionaryLiteral':
+      case "DictionaryLiteral":
         for (let i = 0; i < node.keys.length; ++i) {
-          if (!isIdempotentExpression(node.keys[i])) { return false }
-          if (!isIdempotentExpression(node.values[i])) { return false }
+          if (!isIdempotentExpression(node.keys[i])) {
+            return false;
+          }
+          if (!isIdempotentExpression(node.values[i])) {
+            return false;
+          }
         }
 
-        return true
+        return true;
 
-      case 'ObjectExpression':
+      case "ObjectExpression":
         for (let i = 0; i < node.properties.length; ++i) {
-          if (!isIdempotentExpression(node.properties[i].value)) { return false }
+          if (!isIdempotentExpression(node.properties[i].value)) {
+            return false;
+          }
         }
 
-        return true
+        return true;
 
-      case 'FunctionExpression':
+      case "FunctionExpression":
         for (let i = 0; i < node.params.length; ++i) {
-          if (!isIdempotentExpression(node.params[i])) { return false }
+          if (!isIdempotentExpression(node.params[i])) {
+            return false;
+          }
         }
 
-        return true
+        return true;
 
-      case 'SequenceExpression':
+      case "SequenceExpression":
         for (let i = 0; i < node.expressions.length; ++i) {
-          if (!isIdempotentExpression(node.expressions[i])) { return false }
+          if (!isIdempotentExpression(node.expressions[i])) {
+            return false;
+          }
         }
 
-        return true
+        return true;
 
-      case 'UnaryExpression':
-        return isIdempotentExpression(node.argument)
+      case "UnaryExpression":
+        return isIdempotentExpression(node.argument);
 
-      case 'BinaryExpression':
-        return isIdempotentExpression(node.left) && isIdempotentExpression(node.right)
+      case "BinaryExpression":
+        return (
+          isIdempotentExpression(node.left) && isIdempotentExpression(node.right)
+        );
 
-      case 'ConditionalExpression':
-        return isIdempotentExpression(node.test) && isIdempotentExpression(node.consequent) && isIdempotentExpression(node.alternate)
+      case "ConditionalExpression":
+        return (
+          isIdempotentExpression(node.test) &&
+          isIdempotentExpression(node.consequent) &&
+          isIdempotentExpression(node.alternate)
+        );
 
-      case 'MemberExpression':
-        return isIdempotentExpression(node.object) && (!node.computed || isIdempotentExpression(node.property))
+      case "MemberExpression":
+        return (
+          isIdempotentExpression(node.object) &&
+          (!node.computed || isIdempotentExpression(node.property))
+        );
 
-      case 'Dereference':
-        return isIdempotentExpression(node.expr)
+      case "Dereference":
+        return isIdempotentExpression(node.expr);
 
-      case 'Reference':
-        return isIdempotentExpression(node.element)
+      case "Reference":
+        return isIdempotentExpression(node.element);
 
       default:
-        return false
+        return false;
     }
   }
 
   // We do not allow dereferencing of expressions with side effects because we might need to evaluate the expression twice in certain uses of deref, which is not obvious when you look at the deref operator in plain code.
   function checkCanDereference(st, node) {
-    if (!isIdempotentExpression(node)) { throw st.compiler.error_message('Dereference of expression with side effects', node) }
+    if (!isIdempotentExpression(node)) {
+      throw st.compiler.error_message(
+        "Dereference of expression with side effects",
+        node
+      );
+    }
   }
 
   // Surround expression with parentheses
   function surroundExpression(c) {
     return function (node, st, override) {
-      st.compiler.jsBuffer.concat('(');
+      st.compiler.jsBuffer.concat("(");
       c(node, st, override);
-      st.compiler.jsBuffer.concat(')');
-    }
+      st.compiler.jsBuffer.concat(")");
+    };
   }
 
   const operatorPrecedence = {
@@ -8353,31 +8379,31 @@
     // All these are UnaryExpression or UpdateExpression and never used.
     // "!": 2, "~": 2, "-": 2, "+": 2, "++": 2, "--": 2, "typeof": 2, "void": 2, "delete": 2,
     // BinaryExpression
-    '*': 3,
-    '/': 3,
-    '%': 3,
-    '+': 4,
-    '-': 4,
-    '<<': 5,
-    '>>': 5,
-    '>>>': 5,
-    '<': 6,
-    '<=': 6,
-    '>': 6,
-    '>=': 6,
+    "*": 3,
+    "/": 3,
+    "%": 3,
+    "+": 4,
+    "-": 4,
+    "<<": 5,
+    ">>": 5,
+    ">>>": 5,
+    "<": 6,
+    "<=": 6,
+    ">": 6,
+    ">=": 6,
     in: 6,
     instanceof: 6,
-    '==': 7,
-    '!=': 7,
-    '===': 7,
-    '!==': 7,
-    '&': 8,
-    '^': 9,
-    '|': 10,
+    "==": 7,
+    "!=": 7,
+    "===": 7,
+    "!==": 7,
+    "&": 8,
+    "^": 9,
+    "|": 10,
     // LogicalExpression
-    '&&': 11,
-    '||': 12,
-    '??': 13
+    "&&": 11,
+    "||": 12,
+    "??": 13,
     // ConditionalExpression
     // AssignmentExpression
   };
@@ -8395,10 +8421,10 @@
     BinaryExpression: 5,
     LogicalExpression: 6,
     ConditionalExpression: 7,
-    AssignmentExpression: 8
+    AssignmentExpression: 8,
   };
 
-  function ignore(_node, _st, _c) { }
+  function ignore(_node, _st, _c) {}
 
   const pass1 = walk__default["default"].make({
     ImportStatement: function (node, st, c) {
@@ -8417,7 +8443,7 @@
     Reference: ignore,
     DictionaryLiteral: ignore,
     Dereference: ignore,
-    SelectorLiteralExpression: ignore
+    SelectorLiteralExpression: ignore,
   });
 
   // Returns true if subNode has higher precedence the the root node.
@@ -8428,27 +8454,36 @@
     const subNodePrecedence = expressionTypePrecedence[subNode.type] || -1;
     let nodeOperatorPrecedence;
     let subNodeOperatorPrecedence;
-    return nodePrecedence < subNodePrecedence || (nodePrecedence === subNodePrecedence && isLogicalBinary.test(nodeType) && ((nodeOperatorPrecedence = operatorPrecedence[node.operator]) < (subNodeOperatorPrecedence = operatorPrecedence[subNode.operator]) || (right && nodeOperatorPrecedence === subNodeOperatorPrecedence)))
+    return (
+      nodePrecedence < subNodePrecedence ||
+      (nodePrecedence === subNodePrecedence &&
+        isLogicalBinary.test(nodeType) &&
+        ((nodeOperatorPrecedence = operatorPrecedence[node.operator]) <
+          (subNodeOperatorPrecedence = operatorPrecedence[subNode.operator]) ||
+          (right && nodeOperatorPrecedence === subNodeOperatorPrecedence)))
+    );
   }
 
   // Used for arrow functions. Checks if the parameter list needs parentheses.
   function mustHaveParentheses(paramList) {
     for (const param of paramList) {
-      if (param.type !== 'Identifier') {
-        return true
+      if (param.type !== "Identifier") {
+        return true;
       }
     }
-    return paramList.length > 1 || paramList.length === 0
+    return paramList.length > 1 || paramList.length === 0;
   }
 
-  const reservedIdentifiers = wordsRegexp('self _cmd __filename undefined localStorage arguments');
-  const wordPrefixOperators = wordsRegexp('delete in instanceof new typeof void');
-  const isLogicalBinary = wordsRegexp('LogicalExpression BinaryExpression');
+  const reservedIdentifiers = wordsRegexp(
+    "self _cmd __filename undefined localStorage arguments"
+  );
+  const wordPrefixOperators = wordsRegexp("delete in instanceof new typeof void");
+  const isLogicalBinary = wordsRegexp("LogicalExpression BinaryExpression");
 
   const pass2 = walk__default["default"].make({
     Program: function (node, st, c) {
       for (let i = 0; i < node.body.length; ++i) {
-        c(node.body[i], st, 'Statement');
+        c(node.body[i], st, "Statement");
       }
 
       // Check maybe warnings
@@ -8483,37 +8518,39 @@
         buffer.concat(compiler.indentation.substring(compiler.indentationSize));
       }
 
-      buffer.concat('{\n', node);
+      buffer.concat("{\n", node);
       const inner = endOfScopeBody ? st : new BlockScope(st);
       for (let i = 0; i < node.body.length; ++i) {
-        if (node.body[i].type === 'BlockStatement') {
+        if (node.body[i].type === "BlockStatement") {
           compiler.indentation += compiler.indentStep;
-          c(node.body[i], inner, 'Statement');
-          compiler.indentation = compiler.indentation.substring(compiler.indentationSize);
+          c(node.body[i], inner, "Statement");
+          compiler.indentation = compiler.indentation.substring(
+            compiler.indentationSize
+          );
         } else {
-          c(node.body[i], inner, 'Statement');
+          c(node.body[i], inner, "Statement");
         }
       }
       !endOfScopeBody && inner.variablesNotReadWarnings();
       const maxReceiverLevel = st.maxReceiverLevel;
       if (endOfScopeBody && maxReceiverLevel) {
         buffer.concat(compiler.indentation);
-        buffer.concat('var ');
+        buffer.concat("var ");
         for (let i = 0; i < maxReceiverLevel; i++) {
-          if (i) buffer.concat(', ');
-          buffer.concat('___r');
-          buffer.concat((i + 1) + '');
+          if (i) buffer.concat(", ");
+          buffer.concat("___r");
+          buffer.concat(i + 1 + "");
         }
-        buffer.concat(';\n');
+        buffer.concat(";\n");
       }
 
       // Simulate a node for the last curly bracket
       // var endNode = node.loc && { loc: { start: { line : node.loc.end.line, column: node.loc.end.column}}, source: node.loc.source};
       buffer.concat(compiler.indentation.substring(compiler.indentationSize));
-      buffer.concat('}', node);
-      if (st.isDefaultExport) buffer.concat(';');
+      buffer.concat("}", node);
+      if (st.isDefaultExport) buffer.concat(";");
       if (!skipIndentation && isDecl !== false) {
-        buffer.concat('\n');
+        buffer.concat("\n");
       }
       st.indentBlockLevel--;
     },
@@ -8521,46 +8558,76 @@
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
       buffer.concat(st.compiler.indentation);
-      if (node.expression.type === 'Reference') throw compiler.error_message("Can't have reference of expression as a statement", node.expression)
-      if ((node.expression.type === 'AssignmentExpression' && node.expression.left.type === 'ObjectPattern') || node.expression.type === 'FunctionExpression' || node.expression.type === 'ObjectExpression' || (node.expression.type === 'BinaryExpression' && node.expression.left.type === 'FunctionExpression') || (node.expression.type === 'Literal' && node.expression.value === 'use strict' && !node.directive)) {
-        surroundExpression(c)(node.expression, st, 'Expression');
+      if (node.expression.type === "Reference")
+        throw compiler.error_message(
+          "Can't have reference of expression as a statement",
+          node.expression
+        );
+      if (
+        (node.expression.type === "AssignmentExpression" &&
+          node.expression.left.type === "ObjectPattern") ||
+        node.expression.type === "FunctionExpression" ||
+        node.expression.type === "ObjectExpression" ||
+        (node.expression.type === "BinaryExpression" &&
+          node.expression.left.type === "FunctionExpression") ||
+        (node.expression.type === "Literal" &&
+          node.expression.value === "use strict" &&
+          !node.directive)
+      ) {
+        surroundExpression(c)(node.expression, st, "Expression");
       } else {
-        c(node.expression, st, 'Expression');
+        c(node.expression, st, "Expression");
       }
-      buffer.concat(';\n', node);
+      buffer.concat(";\n", node);
     },
     IfStatement: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
       // Keep the 'else' and 'if' on the same line if it is an 'else if'
-      if (!st.superNodeIsElse) { buffer.concat(st.compiler.indentation); } else { delete st.superNodeIsElse; }
-      buffer.concat('if (', node);
-      c(node.test, st, 'Expression');
+      if (!st.superNodeIsElse) {
+        buffer.concat(st.compiler.indentation);
+      } else {
+        delete st.superNodeIsElse;
+      }
+      buffer.concat("if (", node);
+      c(node.test, st, "Expression");
       // We don't want EmptyStatements to generate an extra parenthesis except when it is in a while, for, ...
-      buffer.concat(')');
-      if (node.consequent.type !== 'EmptyStatement') buffer.concat('\n');
+      buffer.concat(")");
+      if (node.consequent.type !== "EmptyStatement") buffer.concat("\n");
       st.compiler.indentation += st.compiler.indentStep;
-      c(node.consequent, st, 'Statement');
-      st.compiler.indentation = st.compiler.indentation.substring(st.compiler.indentationSize);
+      c(node.consequent, st, "Statement");
+      st.compiler.indentation = st.compiler.indentation.substring(
+        st.compiler.indentationSize
+      );
       const alternate = node.alternate;
       if (alternate) {
-        const alternateNotIf = alternate.type !== 'IfStatement';
-        const emptyStatement = alternate.type === 'EmptyStatement';
+        const alternateNotIf = alternate.type !== "IfStatement";
+        const emptyStatement = alternate.type === "EmptyStatement";
         buffer.concat(st.compiler.indentation);
         // We don't want EmptyStatements to generate an extra parenthesis except when it is in a while, for, ...
-        buffer.concat(alternateNotIf ? emptyStatement ? 'else' : 'else\n' : 'else ', node);
-        if (alternateNotIf) { st.compiler.indentation += st.compiler.indentStep; } else { st.superNodeIsElse = true; }
+        buffer.concat(
+          alternateNotIf ? (emptyStatement ? "else" : "else\n") : "else ",
+          node
+        );
+        if (alternateNotIf) {
+          st.compiler.indentation += st.compiler.indentStep;
+        } else {
+          st.superNodeIsElse = true;
+        }
 
-        c(alternate, st, 'Statement');
-        if (alternateNotIf) st.compiler.indentation = st.compiler.indentation.substring(st.compiler.indentationSize);
+        c(alternate, st, "Statement");
+        if (alternateNotIf)
+          st.compiler.indentation = st.compiler.indentation.substring(
+            st.compiler.indentationSize
+          );
       }
     },
     LabeledStatement: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
-      c(node.label, st, 'VariablePattern');
-      buffer.concat(': ', node);
-      c(node.body, st, 'Statement');
+      c(node.label, st, "VariablePattern");
+      buffer.concat(": ", node);
+      c(node.body, st, "Statement");
     },
     BreakStatement: function (node, st, c) {
       const compiler = st.compiler;
@@ -8568,10 +8635,12 @@
       const buffer = compiler.jsBuffer;
       buffer.concat(st.compiler.indentation);
       if (label) {
-        buffer.concat('break ', node);
-        c(label, st, 'VariablePattern');
-        buffer.concat(';\n');
-      } else { buffer.concat('break;\n', node); }
+        buffer.concat("break ", node);
+        c(label, st, "VariablePattern");
+        buffer.concat(";\n");
+      } else {
+        buffer.concat("break;\n", node);
+      }
     },
     ContinueStatement: function (node, st, c) {
       const compiler = st.compiler;
@@ -8579,479 +8648,575 @@
       const buffer = compiler.jsBuffer;
       buffer.concat(st.compiler.indentation);
       if (label) {
-        buffer.concat('continue ', node);
-        c(label, st, 'VariablePattern');
-        buffer.concat(';\n');
-      } else { buffer.concat('continue;\n', node); }
+        buffer.concat("continue ", node);
+        c(label, st, "VariablePattern");
+        buffer.concat(";\n");
+      } else {
+        buffer.concat("continue;\n", node);
+      }
     },
     WithStatement: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
       buffer.concat(st.compiler.indentation);
-      buffer.concat('with(', node);
-      c(node.object, st, 'Expression');
-      buffer.concat(')\n', node);
+      buffer.concat("with(", node);
+      c(node.object, st, "Expression");
+      buffer.concat(")\n", node);
       st.compiler.indentation += st.compiler.indentStep;
-      c(node.body, st, 'Statement');
-      st.compiler.indentation = st.compiler.indentation.substring(st.compiler.indentationSize);
+      c(node.body, st, "Statement");
+      st.compiler.indentation = st.compiler.indentation.substring(
+        st.compiler.indentationSize
+      );
     },
     SwitchStatement: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
       buffer.concat(st.compiler.indentation);
-      buffer.concat('switch(', node);
-      c(node.discriminant, st, 'Expression');
-      buffer.concat(') {\n');
+      buffer.concat("switch(", node);
+      c(node.discriminant, st, "Expression");
+      buffer.concat(") {\n");
       st.compiler.indentation += st.compiler.indentStep;
       for (let i = 0; i < node.cases.length; ++i) {
         const cs = node.cases[i];
         if (cs.test) {
           buffer.concat(st.compiler.indentation);
-          buffer.concat('case ');
-          c(cs.test, st, 'Expression');
-          buffer.concat(':\n');
-        } else { buffer.concat('default:\n'); }
+          buffer.concat("case ");
+          c(cs.test, st, "Expression");
+          buffer.concat(":\n");
+        } else {
+          buffer.concat("default:\n");
+        }
         st.compiler.indentation += st.compiler.indentStep;
-        for (let j = 0; j < cs.consequent.length; ++j) { c(cs.consequent[j], st, 'Statement'); }
-        st.compiler.indentation = st.compiler.indentation.substring(st.compiler.indentationSize);
+        for (let j = 0; j < cs.consequent.length; ++j) {
+          c(cs.consequent[j], st, "Statement");
+        }
+        st.compiler.indentation = st.compiler.indentation.substring(
+          st.compiler.indentationSize
+        );
       }
-      st.compiler.indentation = st.compiler.indentation.substring(st.compiler.indentationSize);
+      st.compiler.indentation = st.compiler.indentation.substring(
+        st.compiler.indentationSize
+      );
       buffer.concat(st.compiler.indentation);
-      buffer.concat('}\n');
+      buffer.concat("}\n");
     },
     ReturnStatement: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
       buffer.concat(st.compiler.indentation);
-      buffer.concat('return', node);
+      buffer.concat("return", node);
       if (node.argument) {
-        buffer.concat(' ');
-        c(node.argument, st, 'Expression');
+        buffer.concat(" ");
+        c(node.argument, st, "Expression");
       }
-      buffer.concat(';\n');
+      buffer.concat(";\n");
     },
     ThrowStatement: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
       buffer.concat(st.compiler.indentation);
-      buffer.concat('throw', node);
-      buffer.concat(' ');
-      c(node.argument, st, 'Expression');
-      buffer.concat(';\n');
+      buffer.concat("throw", node);
+      buffer.concat(" ");
+      c(node.argument, st, "Expression");
+      buffer.concat(";\n");
     },
     TryStatement: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
       buffer.concat(st.compiler.indentation);
-      buffer.concat('try', node);
-      buffer.concat(' ');
+      buffer.concat("try", node);
+      buffer.concat(" ");
       st.compiler.indentation += st.compiler.indentStep;
       st.skipIndentation = true;
-      c(node.block, st, 'Statement');
-      st.compiler.indentation = st.compiler.indentation.substring(st.compiler.indentationSize);
+      c(node.block, st, "Statement");
+      st.compiler.indentation = st.compiler.indentation.substring(
+        st.compiler.indentationSize
+      );
       if (node.handler) {
         const handler = node.handler;
         const inner = new Scope(st);
         const param = handler.param;
         const name = param?.name;
-        if (name) inner.vars[name] = { type: 'catch clause', node: param };
-        buffer.concat('\n');
+        if (name) inner.vars[name] = { type: "catch clause", node: param };
+        buffer.concat("\n");
         buffer.concat(st.compiler.indentation);
-        buffer.concat('catch');
+        buffer.concat("catch");
         if (param) {
-          buffer.concat('(');
-          c(param, st, 'Pattern');
-          buffer.concat(') ');
+          buffer.concat("(");
+          c(param, st, "Pattern");
+          buffer.concat(") ");
         }
         st.compiler.indentation += st.compiler.indentStep;
         inner.skipIndentation = true;
         inner.endOfScopeBody = true;
-        c(handler.body, inner, 'BlockStatement');
+        c(handler.body, inner, "BlockStatement");
         inner.variablesNotReadWarnings();
-        st.compiler.indentation = st.compiler.indentation.substring(st.compiler.indentationSize);
+        st.compiler.indentation = st.compiler.indentation.substring(
+          st.compiler.indentationSize
+        );
         inner.copyAddedSelfToIvarsToParent();
       }
       if (node.finalizer) {
-        buffer.concat('\n');
+        buffer.concat("\n");
         buffer.concat(st.compiler.indentation);
-        buffer.concat('finally ');
+        buffer.concat("finally ");
         st.compiler.indentation += st.compiler.indentStep;
         st.skipIndentation = true;
-        c(node.finalizer, st, 'Statement');
-        st.compiler.indentation = st.compiler.indentation.substring(st.compiler.indentationSize);
+        c(node.finalizer, st, "Statement");
+        st.compiler.indentation = st.compiler.indentation.substring(
+          st.compiler.indentationSize
+        );
       }
-      buffer.concat('\n');
+      buffer.concat("\n");
     },
     WhileStatement: function (node, st, c) {
       const compiler = st.compiler;
       const body = node.body;
       const buffer = compiler.jsBuffer;
       buffer.concat(st.compiler.indentation);
-      buffer.concat('while (', node);
-      c(node.test, st, 'Expression');
+      buffer.concat("while (", node);
+      c(node.test, st, "Expression");
       // We don't want EmptyStatements to generate an extra parenthesis except when it is in a while, for, ...
-      buffer.concat(')');
-      if (node.body.type !== 'EmptyStatement') buffer.concat('\n');
+      buffer.concat(")");
+      if (node.body.type !== "EmptyStatement") buffer.concat("\n");
       st.compiler.indentation += st.compiler.indentStep;
-      c(body, st, 'Statement');
-      st.compiler.indentation = st.compiler.indentation.substring(st.compiler.indentationSize);
+      c(body, st, "Statement");
+      st.compiler.indentation = st.compiler.indentation.substring(
+        st.compiler.indentationSize
+      );
     },
     DoWhileStatement: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
       buffer.concat(st.compiler.indentation);
-      buffer.concat('do\n', node);
+      buffer.concat("do\n", node);
       st.compiler.indentation += st.compiler.indentStep;
-      c(node.body, st, 'Statement');
-      st.compiler.indentation = st.compiler.indentation.substring(st.compiler.indentationSize);
+      c(node.body, st, "Statement");
+      st.compiler.indentation = st.compiler.indentation.substring(
+        st.compiler.indentationSize
+      );
       buffer.concat(st.compiler.indentation);
-      buffer.concat('while (');
-      c(node.test, st, 'Expression');
-      buffer.concat(');\n');
+      buffer.concat("while (");
+      c(node.test, st, "Expression");
+      buffer.concat(");\n");
     },
     ForStatement: function (node, st, c) {
       const compiler = st.compiler;
       const body = node.body;
       const buffer = compiler.jsBuffer;
       buffer.concat(st.compiler.indentation);
-      buffer.concat('for (', node);
-      if (node.init) c(node.init, st, 'ForInit');
-      buffer.concat('; ');
-      if (node.test) c(node.test, st, 'Expression');
-      buffer.concat('; ');
-      if (node.update) c(node.update, st, 'Expression');
+      buffer.concat("for (", node);
+      if (node.init) c(node.init, st, "ForInit");
+      buffer.concat("; ");
+      if (node.test) c(node.test, st, "Expression");
+      buffer.concat("; ");
+      if (node.update) c(node.update, st, "Expression");
       // We don't want EmptyStatements to generate an extra parenthesis except when it is in a while, for, ...
-      buffer.concat(')');
-      if (node.body.type !== 'EmptyStatement') buffer.concat('\n');
+      buffer.concat(")");
+      if (node.body.type !== "EmptyStatement") buffer.concat("\n");
       st.compiler.indentation += st.compiler.indentStep;
-      c(body, st, 'Statement');
-      st.compiler.indentation = st.compiler.indentation.substring(st.compiler.indentationSize);
+      c(body, st, "Statement");
+      st.compiler.indentation = st.compiler.indentation.substring(
+        st.compiler.indentationSize
+      );
     },
     ForInStatement: function (node, st, c) {
       const compiler = st.compiler;
       const body = node.body;
       const buffer = compiler.jsBuffer;
       buffer.concat(st.compiler.indentation);
-      buffer.concat('for (', node);
-      c(node.left, st, 'ForInit');
-      buffer.concat(' in ');
-      c(node.right, st, 'Expression');
+      buffer.concat("for (", node);
+      c(node.left, st, "ForInit");
+      buffer.concat(" in ");
+      c(node.right, st, "Expression");
       // We don't want EmptyStatements to generate an extra parenthesis except when it is in a while, for, ...
-      buffer.concat(body.type === 'EmptyStatement' ? ')\n' : ')\n');
+      buffer.concat(body.type === "EmptyStatement" ? ")\n" : ")\n");
       st.compiler.indentation += st.compiler.indentStep;
-      c(body, st, 'Statement');
-      st.compiler.indentation = st.compiler.indentation.substring(st.compiler.indentationSize);
+      c(body, st, "Statement");
+      st.compiler.indentation = st.compiler.indentation.substring(
+        st.compiler.indentationSize
+      );
     },
-    ForOfStatement: function (node, st, c) { // TODO: Fix code duplication with 'for in'-
+    ForOfStatement: function (node, st, c) {
+      // TODO: Fix code duplication with 'for in'-
       const compiler = st.compiler;
       const body = node.body;
       const buffer = compiler.jsBuffer;
-      buffer.concat('for', node);
-      if (node.await) buffer.concat(' await ');
-      buffer.concat('(');
-      c(node.left, st, 'ForInit');
-      buffer.concat(' of ');
-      c(node.right, st, 'Expression');
+      buffer.concat("for", node);
+      if (node.await) buffer.concat(" await ");
+      buffer.concat("(");
+      c(node.left, st, "ForInit");
+      buffer.concat(" of ");
+      c(node.right, st, "Expression");
       // We don't want EmptyStatements to generate an extra parenthesis except when it is in a while, for, ...
-      buffer.concat(body.type === 'EmptyStatement' ? ')\n' : ')\n');
+      buffer.concat(body.type === "EmptyStatement" ? ")\n" : ")\n");
       st.compiler.indentation += st.compiler.indentStep;
-      c(body, st, 'Statement');
-      st.compiler.indentation = st.compiler.indentation.substring(st.compiler.indentationSize);
+      c(body, st, "Statement");
+      st.compiler.indentation = st.compiler.indentation.substring(
+        st.compiler.indentationSize
+      );
     },
     ForInit: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
-      if (node.type === 'VariableDeclaration') {
+      if (node.type === "VariableDeclaration") {
         st.isFor = true;
         c(node, st);
         delete st.isFor;
-      } else if (node.type === 'BinaryExpression' && node.operator === 'in') {
-        buffer.concat('(');
-        c(node, st, 'Expression');
-        buffer.concat(')');
+      } else if (node.type === "BinaryExpression" && node.operator === "in") {
+        buffer.concat("(");
+        c(node, st, "Expression");
+        buffer.concat(")");
       } else {
-        c(node, st, 'Expression');
+        c(node, st, "Expression");
       }
     },
     DebuggerStatement: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
       buffer.concat(st.compiler.indentation);
-      buffer.concat('debugger;\n', node);
+      buffer.concat("debugger;\n", node);
     },
     Function: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
       const inner = new FunctionScope(st);
-      const decl = node.type === 'FunctionDeclaration';
+      const decl = node.type === "FunctionDeclaration";
       const id = node.id;
 
       inner.isDecl = decl;
-      for (let i = 0; i < node.params.length; ++i) { inner.vars[node.params[i].name] = { type: 'argument', node: node.params[i] }; }
+      for (let i = 0; i < node.params.length; ++i) {
+        inner.vars[node.params[i].name] = {
+          type: "argument",
+          node: node.params[i],
+        };
+      }
       buffer.concat(st.compiler.indentation);
       if (id) {
         const name = id.name;
-        (decl ? st : inner).vars[name] = { type: decl ? 'function' : 'function name', node: id };
-        if (!st.skipFunctionKeyword && compiler.transformNamedFunctionDeclarationToAssignment) {
+        (decl ? st : inner).vars[name] = {
+          type: decl ? "function" : "function name",
+          node: id,
+        };
+        if (
+          !st.skipFunctionKeyword &&
+          compiler.transformNamedFunctionDeclarationToAssignment
+        ) {
           buffer.concat(name);
-          buffer.concat(' = ');
+          buffer.concat(" = ");
         }
       }
-      if (st.isDefaultExport && !decl) buffer.concat('(');
+      if (st.isDefaultExport && !decl) buffer.concat("(");
       const prefix = [];
       if (st.methodPrefix?.length) {
         prefix.push(...st.methodPrefix);
       }
-      if (node.async) prefix.push('async');
+      if (node.async) prefix.push("async");
       if (!st.skipFunctionKeyword) {
-        prefix.push('function');
+        prefix.push("function");
       }
-      if (node.generator) prefix.push('*');
-      buffer.concat(prefix.join(' '));
-      if ((st.skipFunctionKeyword || !compiler.transformNamedFunctionDeclarationToAssignment) && id) {
-        buffer.concat(' ');
-        if (st.isComputed) buffer.concat('[');
+      if (node.generator) prefix.push("*");
+      buffer.concat(prefix.join(" "));
+      if (
+        (st.skipFunctionKeyword ||
+          !compiler.transformNamedFunctionDeclarationToAssignment) &&
+        id
+      ) {
+        buffer.concat(" ");
+        if (st.isComputed) buffer.concat("[");
         c(id, st);
-        if (st.isComputed) buffer.concat(']');
+        if (st.isComputed) buffer.concat("]");
       }
-      buffer.concat('(');
+      buffer.concat("(");
       for (let i = 0; i < node.params.length; ++i) {
-        if (i) { buffer.concat(', '); }
-        if (node.params[i].type === 'RestElement') {
-          c(node.params[i], st, 'RestElement');
+        if (i) {
+          buffer.concat(", ");
+        }
+        if (node.params[i].type === "RestElement") {
+          c(node.params[i], st, "RestElement");
         } else {
-          c(node.params[i], st, 'Pattern');
+          c(node.params[i], st, "Pattern");
         }
       }
-      buffer.concat(')\n');
+      buffer.concat(")\n");
       st.compiler.indentation += st.compiler.indentStep;
       inner.endOfScopeBody = true;
-      c(node.body, inner, 'Statement');
-      if (st.isDefaultExport && !decl) buffer.concat(')');
+      c(node.body, inner, "Statement");
+      if (st.isDefaultExport && !decl) buffer.concat(")");
       inner.variablesNotReadWarnings();
-      st.compiler.indentation = st.compiler.indentation.substring(st.compiler.indentationSize);
+      st.compiler.indentation = st.compiler.indentation.substring(
+        st.compiler.indentationSize
+      );
       inner.copyAddedSelfToIvarsToParent();
     },
     ObjectPattern: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
 
-      buffer.concat('{', node);
+      buffer.concat("{", node);
       let isFirst = true;
       for (const prop of node.properties) {
         if (!isFirst) {
-          buffer.concat(', ');
+          buffer.concat(", ");
         } else {
           isFirst = false;
         }
-        if (prop.type === 'Property') {
-          if (prop.shorthand && prop.value.type === 'AssignmentPattern') {
+        if (prop.type === "Property") {
+          if (prop.shorthand && prop.value.type === "AssignmentPattern") {
             c(prop.value, st);
           } else {
-            if (prop.computed) buffer.concat('[');
-            c(prop.key, st, 'Pattern');
-            if (prop.computed) buffer.concat(']');
+            if (prop.computed) buffer.concat("[");
+            c(prop.key, st, "Pattern");
+            if (prop.computed) buffer.concat("]");
             if (!prop.shorthand) {
-              buffer.concat(': ');
-              c(prop.value, st, 'Pattern');
+              buffer.concat(": ");
+              c(prop.value, st, "Pattern");
             }
           }
         } else {
           c(prop, st);
         }
       }
-      buffer.concat('}');
+      buffer.concat("}");
     },
     RestElement: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
-      buffer.concat('...');
-      c(node.argument, st, 'Pattern');
+      buffer.concat("...");
+      c(node.argument, st, "Pattern");
     },
     RestPattern: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
-      buffer.concat('...');
-      c(node.argument, st, 'Pattern');
+      buffer.concat("...");
+      c(node.argument, st, "Pattern");
     },
     EmptyStatement: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
-      buffer.concat(';\n');
+      buffer.concat(";\n");
     },
     VariableDeclaration: function (node, st, c) {
       const identifiersFromIdentifier = (id, currentResult) => {
         switch (id.type) {
           case "Identifier":
             currentResult.push(id);
-            break
+            break;
           case "ObjectPattern":
-            currentResult.concat(id.properties.reduce((result, prop) => result.concat(identifiersFromIdentifier(prop.type === 'RestElement' ? prop.argument : prop.value, currentResult)), []));
-            break
+            currentResult.concat(
+              id.properties.reduce(
+                (result, prop) =>
+                  result.concat(
+                    identifiersFromIdentifier(
+                      prop.type === "RestElement" ? prop.argument : prop.value,
+                      currentResult
+                    )
+                  ),
+                []
+              )
+            );
+            break;
           case "ArrayPattern":
-            currentResult.concat(id.elements.reduce((result, element) => element != null ? result.concat(identifiersFromIdentifier(element, currentResult)) : result, []));
-            break
+            currentResult.concat(
+              id.elements.reduce(
+                (result, element) =>
+                  element != null
+                    ? result.concat(
+                        identifiersFromIdentifier(element, currentResult)
+                      )
+                    : result,
+                []
+              )
+            );
+            break;
           case "AssignmentPattern":
-            currentResult.concat(identifiersFromIdentifier(id.left, currentResult));
-            break
+            currentResult.concat(
+              identifiersFromIdentifier(id.left, currentResult)
+            );
+            break;
         }
-        return currentResult
+        return currentResult;
       };
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
-      const isVar = node.kind === 'var';
+      const isVar = node.kind === "var";
       const varScope = isVar ? st.getVarScope() : st;
 
       if (!st.isFor) buffer.concat(compiler.indentation);
-      buffer.concat(node.kind + ' ', node);
+      buffer.concat(node.kind + " ", node);
       let isFirst = true;
       for (const decl of node.declarations) {
         let identifiers = identifiersFromIdentifier(decl.id, []);
 
-        if (identifiers) for (const identifierNode of identifiers) {
-          const possibleHoistedVariable = isVar && varScope.possibleHoistedVariables?.[identifierNode.name];
-          const variableDeclaration = { type: node.kind, node: identifierNode, isRead: (possibleHoistedVariable ? possibleHoistedVariable.isRead : 0) };
+        if (identifiers)
+          for (const identifierNode of identifiers) {
+            const possibleHoistedVariable =
+              isVar && varScope.possibleHoistedVariables?.[identifierNode.name];
+            const variableDeclaration = {
+              type: node.kind,
+              node: identifierNode,
+              isRead: possibleHoistedVariable
+                ? possibleHoistedVariable.isRead
+                : 0,
+            };
 
-          // Make sure we count the access for this varaible if it is hoisted.
-          // Check if this variable has already been accessed above this declaration
-          if (possibleHoistedVariable) {
-            // 'variableDeclaration' is already marked as read. This was done by adding the already read amount above.
+            // Make sure we count the access for this varaible if it is hoisted.
+            // Check if this variable has already been accessed above this declaration
+            if (possibleHoistedVariable) {
+              // 'variableDeclaration' is already marked as read. This was done by adding the already read amount above.
 
-            // Substract the same amount from possible local variable higher up in the hierarchy that is shadowed by this declaration
-            if (possibleHoistedVariable.variable) {
-              possibleHoistedVariable.variable.isRead -= possibleHoistedVariable.isRead;
+              // Substract the same amount from possible local variable higher up in the hierarchy that is shadowed by this declaration
+              if (possibleHoistedVariable.variable) {
+                possibleHoistedVariable.variable.isRead -=
+                  possibleHoistedVariable.isRead;
+              }
+              // Remove it as we don't need to care about this variable anymore.
+              varScope.possibleHoistedVariables[identifierNode.name] = null;
             }
-            // Remove it as we don't need to care about this variable anymore.
-            varScope.possibleHoistedVariables[identifierNode.name] = null;
+            varScope.vars[identifierNode.name] = variableDeclaration;
           }
-          varScope.vars[identifierNode.name] = variableDeclaration;
-        }
 
         if (!isFirst) {
-          if (st.isFor) { buffer.concat(', '); } else {
-            buffer.concat(',\n');
+          if (st.isFor) {
+            buffer.concat(", ");
+          } else {
+            buffer.concat(",\n");
             buffer.concat(compiler.indentation);
-            buffer.concat('    ');
+            buffer.concat("    ");
           }
         }
 
-        c(decl.id, st, 'Pattern');
+        c(decl.id, st, "Pattern");
         if (decl.init) {
-          buffer.concat(' = ');
-          c(decl.init, st, 'Expression');
+          buffer.concat(" = ");
+          c(decl.init, st, "Expression");
         }
         // FIXME: Extract to function
         // Here we check back if a ivar with the same name exists and if we have prefixed 'self.' on previous uses.
         // If this is the case we have to remove the prefixes and issue a warning that the variable hides the ivar.
         if (st.addedSelfToIvars) {
-          if (identifiers) for (const identifierNode of identifiers) {
-            const addedSelfToIvar = st.addedSelfToIvars[identifierNode.name];
-            if (addedSelfToIvar) {
-              const size = addedSelfToIvar.length;
-              for (let i = 0; i < size; i++) {
-                const dict = addedSelfToIvar[i];
-                buffer.removeAtIndex(dict.index);
-                if (compiler.options.warnings.includes(warningShadowIvar)) compiler.addWarning(createMessage("Local declaration of '" + identifierNode.name + "' hides instance variable", dict.node, compiler.source));
+          if (identifiers)
+            for (const identifierNode of identifiers) {
+              const addedSelfToIvar = st.addedSelfToIvars[identifierNode.name];
+              if (addedSelfToIvar) {
+                const size = addedSelfToIvar.length;
+                for (let i = 0; i < size; i++) {
+                  const dict = addedSelfToIvar[i];
+                  buffer.removeAtIndex(dict.index);
+                  if (compiler.options.warnings.includes(warningShadowIvar))
+                    compiler.addWarning(
+                      createMessage(
+                        "Local declaration of '" +
+                          identifierNode.name +
+                          "' hides instance variable",
+                        dict.node,
+                        compiler.source
+                      )
+                    );
+                }
+                // Add a read mark to the local variable for each time it is used.
+                const variableDeclaration = varScope.vars[identifierNode.name];
+                variableDeclaration.isRead += size;
+                // Remove the variable from list of instance variable uses.
+                st.addedSelfToIvars[identifierNode.name] = [];
               }
-              // Add a read mark to the local variable for each time it is used.
-              const variableDeclaration = varScope.vars[identifierNode.name];
-              variableDeclaration.isRead += size;
-              // Remove the variable from list of instance variable uses.
-              st.addedSelfToIvars[identifierNode.name] = [];
             }
-          }
         }
         if (isFirst) isFirst = false;
       }
-      if (!st.isFor) buffer.concat(';\n', node); // Don't add ';' if this is a for statement but do it if this is a statement
+      if (!st.isFor) buffer.concat(";\n", node); // Don't add ';' if this is a for statement but do it if this is a statement
     },
     ThisExpression: function (node, st, c) {
       const compiler = st.compiler;
 
-      compiler.jsBuffer.concat('this', node);
+      compiler.jsBuffer.concat("this", node);
     },
     ArrayExpression: function (node, st, c) {
       const compiler = st.compiler;
 
       const buffer = compiler.jsBuffer;
-      buffer.concat('[', node);
+      buffer.concat("[", node);
 
       for (let i = 0; i < node.elements.length; ++i) {
         const elt = node.elements[i];
 
-        if (i !== 0) { buffer.concat(', '); }
+        if (i !== 0) {
+          buffer.concat(", ");
+        }
 
-        if (elt) c(elt, st, 'Expression');
+        if (elt) c(elt, st, "Expression");
       }
-      buffer.concat(']');
+      buffer.concat("]");
     },
     ObjectExpression: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
 
-      buffer.concat('{', node);
+      buffer.concat("{", node);
       let isFirst = true;
       for (const prop of node.properties) {
         if (!isFirst) {
-          buffer.concat(', ');
+          buffer.concat(", ");
         } else {
           isFirst = false;
         }
         c(prop, st);
       }
-      buffer.concat('}');
+      buffer.concat("}");
     },
     Property: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
-      if (node.value?.type === 'AssignmentPattern' && node.shorthand) {
-        c(node.value, st, 'AssignmentPattern');
-      } else if (node.kind === 'get' || node.kind === 'set' || node.method) {
-        buffer.concat((node.method ? '' : node.kind) + ' ');
+      if (node.value?.type === "AssignmentPattern" && node.shorthand) {
+        c(node.value, st, "AssignmentPattern");
+      } else if (node.kind === "get" || node.kind === "set" || node.method) {
+        buffer.concat((node.method ? "" : node.kind) + " ");
         node.value.id = node.key;
         st.isComputed = node.computed;
         st.skipFunctionKeyword = true;
-        c(node.value, st, 'Expression');
+        c(node.value, st, "Expression");
         delete st.skipFunctionKeyword;
         delete st.isComputed;
       } else {
-        if (node.computed) buffer.concat('[');
+        if (node.computed) buffer.concat("[");
         st.isPropertyKey = true;
-        c(node.key, st, 'Expression');
+        c(node.key, st, "Expression");
         delete st.isPropertyKey;
-        if (node.computed) buffer.concat(']');
+        if (node.computed) buffer.concat("]");
         if (!node.shorthand) {
-          buffer.concat(': ');
+          buffer.concat(": ");
         }
-        if (!node.shorthand) c(node.value, st, 'Expression');
+        if (!node.shorthand) c(node.value, st, "Expression");
       }
     },
     StaticBlock: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
       buffer.concat(st.compiler.indentation);
-      buffer.concat('static');
-      buffer.concat('{');
+      buffer.concat("static");
+      buffer.concat("{");
       for (let i = 0; i < node.body.length; ++i) {
-        c(node.body[i], st, 'Statement');
+        c(node.body[i], st, "Statement");
       }
-      buffer.concat('}');
+      buffer.concat("}");
     },
     SpreadElement: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
-      buffer.concat('...');
+      buffer.concat("...");
       c(node.argument, st);
     },
     SequenceExpression: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
-      buffer.concat('(', node);
+      buffer.concat("(", node);
       for (let i = 0; i < node.expressions.length; ++i) {
-        if (i !== 0) { buffer.concat(', '); }
-        c(node.expressions[i], st, 'Expression');
+        if (i !== 0) {
+          buffer.concat(", ");
+        }
+        c(node.expressions[i], st, "Expression");
       }
-      buffer.concat(')');
+      buffer.concat(")");
     },
     UnaryExpression: function (node, st, c) {
       const compiler = st.compiler;
@@ -9059,149 +9224,209 @@
       const buffer = compiler.jsBuffer;
       if (node.prefix) {
         buffer.concat(node.operator, node);
-        if (wordPrefixOperators.test(node.operator)) { buffer.concat(' '); }
-        (nodePrecedence(node, argument) ? surroundExpression(c) : c)(argument, st, 'Expression');
+        if (wordPrefixOperators.test(node.operator)) {
+          buffer.concat(" ");
+        }
+        (nodePrecedence(node, argument) ? surroundExpression(c) : c)(
+          argument,
+          st,
+          "Expression"
+        );
       } else {
-        (nodePrecedence(node, argument) ? surroundExpression(c) : c)(argument, st, 'Expression');
+        (nodePrecedence(node, argument) ? surroundExpression(c) : c)(
+          argument,
+          st,
+          "Expression"
+        );
         buffer.concat(node.operator);
       }
     },
     UpdateExpression: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
-      if (node.argument.type === 'Dereference') {
+      if (node.argument.type === "Dereference") {
         checkCanDereference(st, node.argument);
 
         // @deref(x)++ and ++@deref(x) require special handling.
 
         // Output the dereference function, "(...)(z)"
-        buffer.concat((node.prefix ? '' : '(') + '(');
+        buffer.concat((node.prefix ? "" : "(") + "(");
 
         // The thing being dereferenced.
-        c(node.argument.expr, st, 'Expression');
-        buffer.concat(')(');
+        c(node.argument.expr, st, "Expression");
+        buffer.concat(")(");
 
-        c(node.argument, st, 'Expression');
-        buffer.concat(' ' + node.operator.substring(0, 1) + ' 1)' + (node.prefix ? '' : node.operator === '++' ? ' - 1)' : ' + 1)'));
+        c(node.argument, st, "Expression");
+        buffer.concat(
+          " " +
+            node.operator.substring(0, 1) +
+            " 1)" +
+            (node.prefix ? "" : node.operator === "++" ? " - 1)" : " + 1)")
+        );
 
-        return
+        return;
       }
 
       if (node.prefix) {
         buffer.concat(node.operator, node);
-        if (wordPrefixOperators.test(node.operator)) { buffer.concat(' '); }
-        (nodePrecedence(node, node.argument) ? surroundExpression(c) : c)(node.argument, st, 'Expression');
+        if (wordPrefixOperators.test(node.operator)) {
+          buffer.concat(" ");
+        }
+        (nodePrecedence(node, node.argument) ? surroundExpression(c) : c)(
+          node.argument,
+          st,
+          "Expression"
+        );
       } else {
-        (nodePrecedence(node, node.argument) ? surroundExpression(c) : c)(node.argument, st, 'Expression');
+        (nodePrecedence(node, node.argument) ? surroundExpression(c) : c)(
+          node.argument,
+          st,
+          "Expression"
+        );
         buffer.concat(node.operator);
       }
     },
     BinaryExpression: function (node, st, c) {
       const compiler = st.compiler;
-      if (node.operator === '**' || node.left.type === 'ArrowFunctionExpression') {
-        surroundExpression(c)(node.left, st, 'Expression');
+      if (
+        node.operator === "**" ||
+        node.left.type === "ArrowFunctionExpression"
+      ) {
+        surroundExpression(c)(node.left, st, "Expression");
       } else {
-        (nodePrecedence(node, node.left) ? surroundExpression(c) : c)(node.left, st, 'Expression');
+        (nodePrecedence(node, node.left) ? surroundExpression(c) : c)(
+          node.left,
+          st,
+          "Expression"
+        );
       }
       const buffer = compiler.jsBuffer;
-      buffer.concat(' ');
+      buffer.concat(" ");
       buffer.concat(node.operator, node);
-      buffer.concat(' ');
-      (nodePrecedence(node, node.right, true) ? surroundExpression(c) : c)(node.right, st, 'Expression');
+      buffer.concat(" ");
+      (nodePrecedence(node, node.right, true) ? surroundExpression(c) : c)(
+        node.right,
+        st,
+        "Expression"
+      );
     },
     LogicalExpression: function (node, st, c) {
       const compiler = st.compiler;
-      if (node.operator === '??') {
-        surroundExpression(c)(node.left, st, 'Expression');
+      if (node.operator === "??") {
+        surroundExpression(c)(node.left, st, "Expression");
       } else {
-        (nodePrecedence(node, node.left) ? surroundExpression(c) : c)(node.left, st, 'Expression');
+        (nodePrecedence(node, node.left) ? surroundExpression(c) : c)(
+          node.left,
+          st,
+          "Expression"
+        );
       }
       const buffer = compiler.jsBuffer;
-      buffer.concat(' ');
+      buffer.concat(" ");
       buffer.concat(node.operator);
-      buffer.concat(' ');
-      if (node.operator === '??') {
-        surroundExpression(c)(node.right, st, 'Expression');
+      buffer.concat(" ");
+      if (node.operator === "??") {
+        surroundExpression(c)(node.right, st, "Expression");
       } else {
-        (nodePrecedence(node, node.right, true) ? surroundExpression(c) : c)(node.right, st, 'Expression');
+        (nodePrecedence(node, node.right, true) ? surroundExpression(c) : c)(
+          node.right,
+          st,
+          "Expression"
+        );
       }
     },
     ParenthesizedExpression: function (node, st, c) {
       const buffer = st.compiler.jsBuffer;
-      buffer.concat('(');
-      c(node.expression, st, 'Expression');
-      buffer.concat(')');
+      buffer.concat("(");
+      c(node.expression, st, "Expression");
+      buffer.concat(")");
     },
     AssignmentExpression: function (node, st, c) {
       const compiler = st.compiler;
       let saveAssignment = st.assignment;
       const buffer = compiler.jsBuffer;
 
-      if (node.left.type === 'Dereference') {
+      if (node.left.type === "Dereference") {
         checkCanDereference(st, node.left);
 
         // @deref(x) = z    -> x(z) etc
 
         // Output the dereference function, "(...)(z)"
-        buffer.concat('(', node);
+        buffer.concat("(", node);
         // What's being dereferenced could itself be an expression, such as when dereferencing a deref.
-        c(node.left.expr, st, 'Expression');
-        buffer.concat(')(');
+        c(node.left.expr, st, "Expression");
+        buffer.concat(")(");
 
         // Now "(x)(...)". We have to manually expand +=, -=, *= etc.
-        if (node.operator !== '=') {
+        if (node.operator !== "=") {
           // Output the whole .left, not just .left.expr.
-          c(node.left, st, 'Expression');
-          buffer.concat(' ' + node.operator.substring(0, 1) + ' ');
+          c(node.left, st, "Expression");
+          buffer.concat(" " + node.operator.substring(0, 1) + " ");
         }
 
-        c(node.right, st, 'Expression');
-        buffer.concat(')');
+        c(node.right, st, "Expression");
+        buffer.concat(")");
 
-        return
+        return;
       }
 
       saveAssignment = st.assignment;
       const nodeLeft = node.left;
 
       st.assignment = true;
-      if (nodeLeft.type === 'Identifier' && nodeLeft.name === 'self') {
-        const lVar = st.getLvar('self', true);
+      if (nodeLeft.type === "Identifier" && nodeLeft.name === "self") {
+        const lVar = st.getLvar("self", true);
         if (lVar) {
           const lvarScope = lVar.scope;
-          if (lvarScope) { lvarScope.assignmentToSelf = true; }
+          if (lvarScope) {
+            lvarScope.assignmentToSelf = true;
+          }
         }
       }
-      (nodePrecedence(node, nodeLeft) ? surroundExpression(c) : c)(nodeLeft, st, 'Expression');
-      buffer.concat(' ');
+      (nodePrecedence(node, nodeLeft) ? surroundExpression(c) : c)(
+        nodeLeft,
+        st,
+        "Expression"
+      );
+      buffer.concat(" ");
       buffer.concat(node.operator);
-      buffer.concat(' ');
+      buffer.concat(" ");
       st.assignment = saveAssignment;
-      (nodePrecedence(node, node.right, true) ? surroundExpression(c) : c)(node.right, st, 'Expression');
+      (nodePrecedence(node, node.right, true) ? surroundExpression(c) : c)(
+        node.right,
+        st,
+        "Expression"
+      );
       const varScope = st.getVarScope();
-      if (varScope.isRootScope() && nodeLeft.type === 'Identifier' && !varScope.getLvar(nodeLeft.name)) { varScope.vars[nodeLeft.name] = { type: 'global', node: nodeLeft }; }
+      if (
+        varScope.isRootScope() &&
+        nodeLeft.type === "Identifier" &&
+        !varScope.getLvar(nodeLeft.name)
+      ) {
+        varScope.vars[nodeLeft.name] = { type: "global", node: nodeLeft };
+      }
     },
     AssignmentPattern: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
-      c(node.left, st, 'Pattern');
-      buffer.concat(' = ');
-      c(node.right, st, 'Expression');
+      c(node.left, st, "Pattern");
+      buffer.concat(" = ");
+      c(node.right, st, "Expression");
     },
     ArrayPattern: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
-      buffer.concat('[');
+      buffer.concat("[");
       let isFirst = true;
       for (const element of node.elements) {
         if (!isFirst || element == null) {
-          buffer.concat(', ');
+          buffer.concat(", ");
         } else {
           isFirst = false;
         }
         if (element != null) c(element, st, "Pattern");
       }
-      buffer.concat(']');
+      buffer.concat("]");
     },
     VariablePattern: function (node, st, c) {
       const compiler = st.compiler;
@@ -9212,48 +9437,58 @@
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
 
-      buffer.concat('`');
+      buffer.concat("`");
       let i;
       for (i = 0; i < node.expressions.length; i++) {
         buffer.concat(node.quasis[i].value.raw);
-        buffer.concat('${');
+        buffer.concat("${");
         c(node.expressions[i], st);
-        buffer.concat('}');
+        buffer.concat("}");
       }
       buffer.concat(node.quasis[i].value.raw);
-      buffer.concat('`');
+      buffer.concat("`");
     },
     TaggedTemplateExpression: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
-      if (node.tag.type === 'ChainExpression') buffer.concat('(');
-      c(node.tag, st, 'Expression');
-      if (node.tag.type === 'ChainExpression') buffer.concat(')');
-      c(node.quasi, st, 'Expression');
+      if (node.tag.type === "ChainExpression") buffer.concat("(");
+      c(node.tag, st, "Expression");
+      if (node.tag.type === "ChainExpression") buffer.concat(")");
+      c(node.quasi, st, "Expression");
     },
     ConditionalExpression: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
-      (nodePrecedence(node, node.test) ? surroundExpression(c) : c)(node.test, st, 'Expression');
-      buffer.concat(' ? ');
-      c(node.consequent, st, 'Expression');
-      buffer.concat(' : ');
-      c(node.alternate, st, 'Expression');
+      (nodePrecedence(node, node.test) ? surroundExpression(c) : c)(
+        node.test,
+        st,
+        "Expression"
+      );
+      buffer.concat(" ? ");
+      c(node.consequent, st, "Expression");
+      buffer.concat(" : ");
+      c(node.alternate, st, "Expression");
     },
     NewExpression: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
       const nodeArguments = node.arguments;
-      buffer.concat('new ', node);
-      (nodePrecedence(node, node.callee) ? surroundExpression(c) : c)(node.callee, st, 'Expression');
-      buffer.concat('(');
+      buffer.concat("new ", node);
+      (nodePrecedence(node, node.callee) ? surroundExpression(c) : c)(
+        node.callee,
+        st,
+        "Expression"
+      );
+      buffer.concat("(");
       if (nodeArguments) {
         for (let i = 0, size = nodeArguments.length; i < size; ++i) {
-          if (i) { buffer.concat(', '); }
-          c(nodeArguments[i], st, 'Expression');
+          if (i) {
+            buffer.concat(", ");
+          }
+          c(nodeArguments[i], st, "Expression");
         }
       }
-      buffer.concat(')');
+      buffer.concat(")");
     },
     CallExpression: function (node, st, c) {
       const compiler = st.compiler;
@@ -9263,8 +9498,8 @@
 
       // If call to function 'eval' we assume that 'self' can be altered and from this point
       // we check if 'self' is null before 'objj_msgSend' is called with 'self' as receiver.
-      if (callee.type === 'Identifier' && callee.name === 'eval') {
-        const selfLvar = st.getLvar('self', true);
+      if (callee.type === "Identifier" && callee.name === "eval") {
+        const selfLvar = st.getLvar("self", true);
         if (selfLvar) {
           const selfScope = selfLvar.scope;
           if (selfScope) {
@@ -9272,37 +9507,51 @@
           }
         }
       }
-      (nodePrecedence(node, callee) ? surroundExpression(c) : c)(callee, st, 'Expression');
-      if (node.optional) buffer.concat('?.');
-      buffer.concat('(');
+      (nodePrecedence(node, callee) ? surroundExpression(c) : c)(
+        callee,
+        st,
+        "Expression"
+      );
+      if (node.optional) buffer.concat("?.");
+      buffer.concat("(");
       if (nodeArguments) {
         for (let i = 0, size = nodeArguments.length; i < size; ++i) {
-          if (i) { buffer.concat(', '); }
-          c(nodeArguments[i], st, 'Expression');
+          if (i) {
+            buffer.concat(", ");
+          }
+          c(nodeArguments[i], st, "Expression");
         }
       }
-      buffer.concat(')');
+      buffer.concat(")");
     },
     MemberExpression: function (node, st, c) {
       const compiler = st.compiler;
       const computed = node.computed;
-      (nodePrecedence(node, node.object) ? surroundExpression(c) : c)(node.object, st, 'Expression');
-      let s = '';
+      (nodePrecedence(node, node.object) ? surroundExpression(c) : c)(
+        node.object,
+        st,
+        "Expression"
+      );
+      let s = "";
       if (node.optional && node.computed) {
-        s = '?.[';
+        s = "?.[";
       } else if (node.optional) {
-        s = '?.';
+        s = "?.";
       } else if (node.computed) {
-        s = '[';
+        s = "[";
       } else {
-        s = '.';
+        s = ".";
       }
       compiler.jsBuffer.concat(s);
       st.secondMemberExpression = !computed;
       // No parentheses when it is computed, '[' and ']' are the same thing.
-      (!computed && nodePrecedence(node, node.property) ? surroundExpression(c) : c)(node.property, st, 'Expression');
+      (!computed && nodePrecedence(node, node.property)
+        ? surroundExpression(c)
+        : c)(node.property, st, "Expression");
       st.secondMemberExpression = false;
-      if (computed) { compiler.jsBuffer.concat(']'); }
+      if (computed) {
+        compiler.jsBuffer.concat("]");
+      }
     },
     ChainExpression: function (node, st, c) {
       c(node.expression, st);
@@ -9310,12 +9559,12 @@
     AwaitExpression: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
-      buffer.concat('await', node);
+      buffer.concat("await", node);
       if (node.argument) {
-        buffer.concat(' ');
-        buffer.concat('(');
-        c(node.argument, st, 'Expression');
-        buffer.concat(')');
+        buffer.concat(" ");
+        buffer.concat("(");
+        c(node.argument, st, "Expression");
+        buffer.concat(")");
       }
     },
     ArrowFunctionExpression: function (node, st, c) {
@@ -9323,33 +9572,45 @@
       const buffer = compiler.jsBuffer;
       const inner = new FunctionScope(st);
       inner.isDecl = false;
-      for (let i = 0; i < node.params.length; ++i) { inner.vars[node.params[i].name] = { type: 'argument', node: node.params[i] }; }
-      if (node.async) buffer.concat('async ');
+      for (let i = 0; i < node.params.length; ++i) {
+        inner.vars[node.params[i].name] = {
+          type: "argument",
+          node: node.params[i],
+        };
+      }
+      if (node.async) buffer.concat("async ");
       const needParentheses = mustHaveParentheses(node.params);
-      if (needParentheses) buffer.concat('(');
+      if (needParentheses) buffer.concat("(");
       let isFirst = true;
       for (const param of node.params) {
         if (isFirst) {
           isFirst = false;
         } else {
-          buffer.concat(', ');
+          buffer.concat(", ");
         }
-        c(param, st, 'Pattern');
+        c(param, st, "Pattern");
       }
-      if (needParentheses) buffer.concat(')');
-      buffer.concat(' => ');
+      if (needParentheses) buffer.concat(")");
+      buffer.concat(" => ");
       if (node.expression) {
-        if ((node.body.type === 'AssignmentExpression' && node.body.left.type === 'ObjectPattern') || node.body.type === 'FunctionExpression' || node.body.type === 'ObjectExpression') {
-          surroundExpression(c)(node.body, inner, 'Expression');
+        if (
+          (node.body.type === "AssignmentExpression" &&
+            node.body.left.type === "ObjectPattern") ||
+          node.body.type === "FunctionExpression" ||
+          node.body.type === "ObjectExpression"
+        ) {
+          surroundExpression(c)(node.body, inner, "Expression");
         } else {
-          c(node.body, inner, 'Expression');
+          c(node.body, inner, "Expression");
         }
       } else {
         inner.skipIndentation = true;
         inner.endOfScopeBody = true;
         st.compiler.indentation += st.compiler.indentStep;
-        c(node.body, inner, 'BlockStatement');
-        st.compiler.indentation = st.compiler.indentation.substring(st.compiler.indentationSize);
+        c(node.body, inner, "BlockStatement");
+        st.compiler.indentation = st.compiler.indentation.substring(
+          st.compiler.indentationSize
+        );
       }
       inner.variablesNotReadWarnings();
       inner.copyAddedSelfToIvarsToParent();
@@ -9360,38 +9621,77 @@
       const identifier = node.name;
 
       if (st.isPropertyKey) {
-        buffer.concat(identifier, node, identifier === 'self' ? 'self' : null);
-        return
+        buffer.concat(identifier, node, identifier === "self" ? "self" : null);
+        return;
       }
 
       let lvarScope = st.getLvarScope(identifier, true); // Only look inside method/function scope
       let lvar = lvarScope.vars?.[identifier];
 
-      if (!st.secondMemberExpression && st.currentMethodType() === '-') {
+      if (!st.secondMemberExpression && st.currentMethodType() === "-") {
         const ivar = compiler.getIvarForClass(identifier, st);
         if (ivar) {
           if (lvar) {
-            if (compiler.options.warnings.includes(warningShadowIvar)) compiler.addWarning(createMessage("Local declaration of '" + identifier + "' hides instance variable", node, compiler.source));
+            if (compiler.options.warnings.includes(warningShadowIvar))
+              compiler.addWarning(
+                createMessage(
+                  "Local declaration of '" +
+                    identifier +
+                    "' hides instance variable",
+                  node,
+                  compiler.source
+                )
+              );
           } else {
             // Save the index in where the "self." string is stored and the node.
             // These will be used if we find a variable declaration that is hoisting this identifier.
-            ((st.addedSelfToIvars || (st.addedSelfToIvars = Object.create(null)))[identifier] || (st.addedSelfToIvars[identifier] = [])).push({ node, index: buffer.length() });
-            buffer.concat('self.', node);
+            (
+              (st.addedSelfToIvars ||
+                (st.addedSelfToIvars = Object.create(null)))[identifier] ||
+              (st.addedSelfToIvars[identifier] = [])
+            ).push({ node, index: buffer.length() });
+            buffer.concat("self.", node);
           }
-        } else if (!reservedIdentifiers.test(identifier)) { // Don't check for warnings if it is a reserved word like self, localStorage, _cmd, etc...
+        } else if (!reservedIdentifiers.test(identifier)) {
+          // Don't check for warnings if it is a reserved word like self, localStorage, _cmd, etc...
           let message;
-          const classOrGlobal = typeof global[identifier] !== 'undefined' || (typeof window !== 'undefined' && typeof window[identifier] !== 'undefined') || compiler.getClassDef(identifier);
+          const classOrGlobal =
+            typeof global[identifier] !== "undefined" ||
+            (typeof window !== "undefined" &&
+              typeof window[identifier] !== "undefined") ||
+            compiler.getClassDef(identifier);
           const globalVar = st.getLvar(identifier);
-          if (classOrGlobal && (!globalVar || globalVar.type !== 'class')) ; else if (!globalVar) {
-            if (st.assignment && compiler.options.warnings.includes(warningCreateGlobalInsideFunctionOrMethod)) {
-              message = new GlobalVariableMaybeWarning("Creating global variable inside function or method '" + identifier + "'", node, compiler.source);
+          if (classOrGlobal && (!globalVar || globalVar.type !== "class")) ; else if (!globalVar) {
+            if (
+              st.assignment &&
+              compiler.options.warnings.includes(
+                warningCreateGlobalInsideFunctionOrMethod
+              )
+            ) {
+              message = new GlobalVariableMaybeWarning(
+                "Creating global variable inside function or method '" +
+                  identifier +
+                  "'",
+                node,
+                compiler.source
+              );
               // Turn off these warnings for this identifier, we only want one.
-              st.vars[identifier] = { type: 'remove global warning', node };
-            } else if (compiler.options.warnings.includes(warningUnknownClassOrGlobal)) {
-              message = new GlobalVariableMaybeWarning("Using unknown class or uninitialized global variable '" + identifier + "'", node, compiler.source);
+              st.vars[identifier] = { type: "remove global warning", node };
+            } else if (
+              compiler.options.warnings.includes(warningUnknownClassOrGlobal)
+            ) {
+              message = new GlobalVariableMaybeWarning(
+                "Using unknown class or uninitialized global variable '" +
+                  identifier +
+                  "'",
+                node,
+                compiler.source
+              );
             }
           }
-          if (message) { st.addMaybeWarning(message); }
+          if (message) {
+            st.addMaybeWarning(message);
+          }
         }
       }
       if (!(st.assignment && st.secondMemberExpression)) {
@@ -9411,35 +9711,46 @@
           // It can also be declared later on in a higher scope.
           // We create a list of possible variables that will be used if it is declared.
           // We collect how many times the variable is read and a reference to a possible variable in a
-          let possibleHoistedVariable = (lvarScope.possibleHoistedVariables || (lvarScope.possibleHoistedVariables = Object.create(null)))[identifier];
+          let possibleHoistedVariable = (lvarScope.possibleHoistedVariables ||
+            (lvarScope.possibleHoistedVariables = Object.create(null)))[
+            identifier
+          ];
 
           if (possibleHoistedVariable == null) {
             possibleHoistedVariable = { isRead: 1 };
-            lvarScope.possibleHoistedVariables[identifier] = possibleHoistedVariable;
+            lvarScope.possibleHoistedVariables[identifier] =
+              possibleHoistedVariable;
           } else {
             possibleHoistedVariable.isRead++;
           }
 
           if (lvar) {
             // If the var and scope are already set it should not be different from what we found now.
-            if ((possibleHoistedVariable.variable && possibleHoistedVariable.variable !== lvar) || (possibleHoistedVariable.varScope && possibleHoistedVariable.varScope !== lvarScope)) {
-              throw new Error('Internal inconsistency, var or scope is not the same')
+            if (
+              (possibleHoistedVariable.variable &&
+                possibleHoistedVariable.variable !== lvar) ||
+              (possibleHoistedVariable.varScope &&
+                possibleHoistedVariable.varScope !== lvarScope)
+            ) {
+              throw new Error(
+                "Internal inconsistency, var or scope is not the same"
+              );
             }
             possibleHoistedVariable.variable = lvar;
             possibleHoistedVariable.varScope = lvarScope;
           }
         }
       }
-      buffer.concat(identifier, node, identifier === 'self' ? 'self' : null);
+      buffer.concat(identifier, node, identifier === "self" ? "self" : null);
     },
     YieldExpression: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
-      buffer.concat('yield', node);
-      if (node.delegate) buffer.concat('*');
+      buffer.concat("yield", node);
+      if (node.delegate) buffer.concat("*");
       if (node.argument) {
-        buffer.concat(' ');
-        c(node.argument, st, 'Expression');
+        buffer.concat(" ");
+        c(node.argument, st, "Expression");
       }
     },
     // Use this when there should not be a look up to issue warnings or add 'self.' before ivars
@@ -9450,7 +9761,11 @@
     Literal: function (node, st, c) {
       const compiler = st.compiler;
       if (node.raw) {
-        if (node.raw.charAt(0) === '@') { compiler.jsBuffer.concat(node.raw.substring(1), node); } else { compiler.jsBuffer.concat(node.raw, node); }
+        if (node.raw.charAt(0) === "@") {
+          compiler.jsBuffer.concat(node.raw.substring(1), node);
+        } else {
+          compiler.jsBuffer.concat(node.raw, node);
+        }
       } else {
         const value = node.value;
         const doubleQuote = value.indexOf('"') !== -1;
@@ -9461,53 +9776,55 @@
     },
     ClassDeclaration: function (node, st, c) {
       const buffer = st.compiler.jsBuffer;
-      if (node.type === 'ClassExpression') buffer.concat('(');
-      buffer.concat('class ');
+      if (node.type === "ClassExpression") buffer.concat("(");
+      buffer.concat("class ");
       if (node.id) {
-        st.vars[node.id.name] = { type: 'JSClass', node: node };
+        st.vars[node.id.name] = { type: "JSClass", node: node };
         c(node.id, st);
       }
       if (node.superClass) {
-        buffer.concat(' extends ');
+        buffer.concat(" extends ");
         c(node.superClass, st);
       }
       st.compiler.indentation += st.compiler.indentStep;
-      c(node.body, st, 'ClassBody');
-      st.compiler.indentation = st.compiler.indentation.substring(st.compiler.indentationSize);
-      if (node.type === 'ClassExpression') buffer.concat(')');
+      c(node.body, st, "ClassBody");
+      st.compiler.indentation = st.compiler.indentation.substring(
+        st.compiler.indentationSize
+      );
+      if (node.type === "ClassExpression") buffer.concat(")");
     },
     ClassExpression: function (node, st, c) {
-      c(node, st, 'ClassDeclaration');
+      c(node, st, "ClassDeclaration");
     },
     ClassBody: function (node, st, c) {
       const compiler = st.compiler;
-      compiler.jsBuffer.concat(' {\n');
+      compiler.jsBuffer.concat(" {\n");
       for (const element of node.body) {
         c(element, st);
-        compiler.jsBuffer.concat('\n');
+        compiler.jsBuffer.concat("\n");
       }
-      compiler.jsBuffer.concat('}\n');
+      compiler.jsBuffer.concat("}\n");
     },
     PropertyDefinition: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
 
       buffer.concat(st.compiler.indentation);
-      if (node.static) buffer.concat('static ');
-      if (node.computed) buffer.concat('[');
+      if (node.static) buffer.concat("static ");
+      if (node.computed) buffer.concat("[");
       c(node.key, st);
-      if (node.computed) buffer.concat(']');
+      if (node.computed) buffer.concat("]");
       if (node.value) {
-        buffer.concat(' = ');
+        buffer.concat(" = ");
         c(node.value, st);
       }
-      buffer.concat(';');
+      buffer.concat(";");
     },
     MethodDefinition: function (node, st, c) {
       const prefix = [];
-      if (node.static) prefix.push('static');
-      if (node.kind === 'get') prefix.push('get');
-      if (node.kind === 'set') prefix.push('set');
+      if (node.static) prefix.push("static");
+      if (node.kind === "get") prefix.push("get");
+      if (node.kind === "set") prefix.push("set");
 
       node.value.id = node.key;
       st.skipFunctionKeyword = true;
@@ -9521,7 +9838,7 @@
     PrivateIdentifier: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
-      buffer.concat('#');
+      buffer.concat("#");
       buffer.concat(node.name);
     },
     MetaProperty: function (node, st, c) {
@@ -9529,17 +9846,17 @@
       const buffer = compiler.jsBuffer;
 
       // Very specific special cases. Apparently this will be used in future versions of ES.
-      if (node.meta.name === 'import') {
-        buffer.concat('import.meta');
+      if (node.meta.name === "import") {
+        buffer.concat("import.meta");
       } else {
-        buffer.concat('new.target');
+        buffer.concat("new.target");
       }
     },
     Super: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
 
-      buffer.concat('super');
+      buffer.concat("super");
     },
     ExportNamedDeclaration: function (node, st, c) {
       const compiler = st.compiler;
@@ -9550,34 +9867,34 @@
       // Case 2: declaration is null, specifiers are non-null, source is null
       // Case 3: declaration is null, specifiers are non-null, source is non-null
 
-      buffer.concat('export ');
+      buffer.concat("export ");
       if (node.declaration) {
         c(node.declaration, st);
       } else {
-        buffer.concat('{');
+        buffer.concat("{");
         let isFirst = true;
         for (const specifier of node.specifiers) {
           if (!isFirst) {
-            buffer.concat(', ');
+            buffer.concat(", ");
           } else {
             isFirst = false;
           }
           c(specifier, st);
         }
-        buffer.concat('}');
+        buffer.concat("}");
         if (node.source) {
-          buffer.concat(' from ');
+          buffer.concat(" from ");
           c(node.source, st);
         }
       }
-      buffer.concat('\n');
+      buffer.concat("\n");
     },
     ExportSpecifier: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
       c(node.local, st);
       if (node.local !== node.exported) {
-        buffer.concat(' as ');
+        buffer.concat(" as ");
         c(node.exported, st);
       }
     },
@@ -9585,66 +9902,66 @@
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
       st.isDefaultExport = true;
-      buffer.concat('export default ');
+      buffer.concat("export default ");
       c(node.declaration, st);
       delete st.isDefaultExport;
     },
     ExportAllDeclaration: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
-      buffer.concat('export * ');
+      buffer.concat("export * ");
       if (node.exported) {
-        buffer.concat('as ');
+        buffer.concat("as ");
         c(node.exported, st);
       }
       if (node.source) {
-        buffer.concat(' from ');
+        buffer.concat(" from ");
         c(node.source, st);
       }
-      buffer.concat('\n');
+      buffer.concat("\n");
     },
     ImportDeclaration: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
 
-      buffer.concat('import ');
+      buffer.concat("import ");
       let startedCurly = false;
       let isFirst = true;
       for (const specifier of node.specifiers) {
-        if (!isFirst) buffer.concat(', ');
+        if (!isFirst) buffer.concat(", ");
         else isFirst = false;
         switch (specifier.type) {
-          case 'ImportSpecifier':
-            if (!startedCurly) buffer.concat('{');
+          case "ImportSpecifier":
+            if (!startedCurly) buffer.concat("{");
             startedCurly = true;
             c(specifier.imported, st);
             if (specifier.local !== specifier.imported) {
-              buffer.concat(' as ');
+              buffer.concat(" as ");
               c(specifier.local, st);
             }
-            break
-          case 'ImportDefaultSpecifier':
+            break;
+          case "ImportDefaultSpecifier":
             c(specifier.local, st);
-            break
-          case 'ImportNamespaceSpecifier':
-            buffer.concat('* as ');
+            break;
+          case "ImportNamespaceSpecifier":
+            buffer.concat("* as ");
             c(specifier.local, st);
-            break
+            break;
         }
       }
-      if (startedCurly) buffer.concat('}');
-      if (node.specifiers.length > 0) buffer.concat(' from ');
+      if (startedCurly) buffer.concat("}");
+      if (node.specifiers.length > 0) buffer.concat(" from ");
       c(node.source, st);
-      buffer.concat('\n');
+      buffer.concat("\n");
     },
     ImportExpression: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
 
-      buffer.concat('import');
-      buffer.concat('(');
+      buffer.concat("import");
+      buffer.concat("(");
       c(node.source, st);
-      buffer.concat(')');
+      buffer.concat(")");
     },
     ArrayLiteral: function (node, st, c) {
       const compiler = st.compiler;
@@ -9655,70 +9972,82 @@
       if (!varScope.receiverLevel) varScope.receiverLevel = 0;
       if (!elementLength) {
         if (compiler.options.inlineMsgSendFunctions) {
-          buffer.concat('(___r', node);
-          buffer.concat(++varScope.receiverLevel + '');
-          buffer.concat(' = (CPArray.isa.method_msgSend["alloc"] || _objj_forward)(CPArray, "alloc"), ___r');
-          buffer.concat(varScope.receiverLevel + '');
-          buffer.concat(' == null ? ___r');
-          buffer.concat(varScope.receiverLevel + '');
-          buffer.concat(' : (___r');
-          buffer.concat(varScope.receiverLevel + '');
+          buffer.concat("(___r", node);
+          buffer.concat(++varScope.receiverLevel + "");
+          buffer.concat(
+            ' = (CPArray.isa.method_msgSend["alloc"] || _objj_forward)(CPArray, "alloc"), ___r'
+          );
+          buffer.concat(varScope.receiverLevel + "");
+          buffer.concat(" == null ? ___r");
+          buffer.concat(varScope.receiverLevel + "");
+          buffer.concat(" : (___r");
+          buffer.concat(varScope.receiverLevel + "");
           buffer.concat('.isa.method_msgSend["init"] || _objj_forward)(___r');
-          buffer.concat(varScope.receiverLevel + '');
+          buffer.concat(varScope.receiverLevel + "");
           buffer.concat(', "init"))');
         } else {
-          buffer.concat('(___r');
-          buffer.concat(++varScope.receiverLevel + '');
+          buffer.concat("(___r");
+          buffer.concat(++varScope.receiverLevel + "");
           buffer.concat(' = CPArray.isa.objj_msgSend0(CPArray, "alloc"), ___r');
-          buffer.concat(varScope.receiverLevel + '');
-          buffer.concat(' == null ? ___r');
-          buffer.concat(varScope.receiverLevel + '');
-          buffer.concat(' : ___r');
-          buffer.concat(varScope.receiverLevel + '');
-          buffer.concat('.isa.objj_msgSend0(___r');
-          buffer.concat(varScope.receiverLevel + '');
+          buffer.concat(varScope.receiverLevel + "");
+          buffer.concat(" == null ? ___r");
+          buffer.concat(varScope.receiverLevel + "");
+          buffer.concat(" : ___r");
+          buffer.concat(varScope.receiverLevel + "");
+          buffer.concat(".isa.objj_msgSend0(___r");
+          buffer.concat(varScope.receiverLevel + "");
           buffer.concat(', "init"))');
         }
 
-        if (!(varScope.maxReceiverLevel >= varScope.receiverLevel)) { varScope.maxReceiverLevel = varScope.receiverLevel; }
+        if (!(varScope.maxReceiverLevel >= varScope.receiverLevel)) {
+          varScope.maxReceiverLevel = varScope.receiverLevel;
+        }
       } else {
         if (compiler.options.inlineMsgSendFunctions) {
-          buffer.concat('(___r', node);
-          buffer.concat(++varScope.receiverLevel + '');
-          buffer.concat(' = (CPArray.isa.method_msgSend["alloc"] || _objj_forward)(CPArray, "alloc"), ___r');
-          buffer.concat(varScope.receiverLevel + '');
-          buffer.concat(' == null ? ___r');
-          buffer.concat(varScope.receiverLevel + '');
-          buffer.concat(' : (___r');
-          buffer.concat(varScope.receiverLevel + '');
-          buffer.concat('.isa.method_msgSend["initWithObjects:count:"] || _objj_forward)(___r');
-          buffer.concat(varScope.receiverLevel + '');
+          buffer.concat("(___r", node);
+          buffer.concat(++varScope.receiverLevel + "");
+          buffer.concat(
+            ' = (CPArray.isa.method_msgSend["alloc"] || _objj_forward)(CPArray, "alloc"), ___r'
+          );
+          buffer.concat(varScope.receiverLevel + "");
+          buffer.concat(" == null ? ___r");
+          buffer.concat(varScope.receiverLevel + "");
+          buffer.concat(" : (___r");
+          buffer.concat(varScope.receiverLevel + "");
+          buffer.concat(
+            '.isa.method_msgSend["initWithObjects:count:"] || _objj_forward)(___r'
+          );
+          buffer.concat(varScope.receiverLevel + "");
           buffer.concat(', "initWithObjects:count:", [');
         } else {
-          buffer.concat('(___r', node);
-          buffer.concat(++varScope.receiverLevel + '');
+          buffer.concat("(___r", node);
+          buffer.concat(++varScope.receiverLevel + "");
           buffer.concat(' = CPArray.isa.objj_msgSend0(CPArray, "alloc"), ___r');
-          buffer.concat(varScope.receiverLevel + '');
-          buffer.concat(' == null ? ___r');
-          buffer.concat(varScope.receiverLevel + '');
-          buffer.concat(' : ___r');
-          buffer.concat(varScope.receiverLevel + '');
-          buffer.concat('.isa.objj_msgSend2(___r');
-          buffer.concat(varScope.receiverLevel + '');
+          buffer.concat(varScope.receiverLevel + "");
+          buffer.concat(" == null ? ___r");
+          buffer.concat(varScope.receiverLevel + "");
+          buffer.concat(" : ___r");
+          buffer.concat(varScope.receiverLevel + "");
+          buffer.concat(".isa.objj_msgSend2(___r");
+          buffer.concat(varScope.receiverLevel + "");
           buffer.concat(', "initWithObjects:count:", [');
         }
 
-        if (!(varScope.maxReceiverLevel >= varScope.receiverLevel)) { varScope.maxReceiverLevel = varScope.receiverLevel; }
+        if (!(varScope.maxReceiverLevel >= varScope.receiverLevel)) {
+          varScope.maxReceiverLevel = varScope.receiverLevel;
+        }
       }
       if (elementLength) {
         for (let i = 0; i < elementLength; i++) {
           const elt = node.elements[i];
 
-          if (i) { buffer.concat(', '); }
+          if (i) {
+            buffer.concat(", ");
+          }
 
-          c(elt, st, 'Expression');
+          c(elt, st, "Expression");
         }
-        buffer.concat('], ' + elementLength + '))');
+        buffer.concat("], " + elementLength + "))");
       }
       varScope.receiverLevel--;
     },
@@ -9731,78 +10060,92 @@
       if (!varScope.receiverLevel) varScope.receiverLevel = 0;
       if (!keyLength) {
         if (compiler.options.inlineMsgSendFunctions) {
-          buffer.concat('(___r', node);
-          buffer.concat(++varScope.receiverLevel + '');
-          buffer.concat(' = (CPDictionary.isa.method_msgSend["alloc"] || _objj_forward)(CPDictionary, "alloc"), ___r');
-          buffer.concat(varScope.receiverLevel + '');
-          buffer.concat(' == null ? ___r');
-          buffer.concat(varScope.receiverLevel + '');
-          buffer.concat(' : (___r');
-          buffer.concat(varScope.receiverLevel + '');
+          buffer.concat("(___r", node);
+          buffer.concat(++varScope.receiverLevel + "");
+          buffer.concat(
+            ' = (CPDictionary.isa.method_msgSend["alloc"] || _objj_forward)(CPDictionary, "alloc"), ___r'
+          );
+          buffer.concat(varScope.receiverLevel + "");
+          buffer.concat(" == null ? ___r");
+          buffer.concat(varScope.receiverLevel + "");
+          buffer.concat(" : (___r");
+          buffer.concat(varScope.receiverLevel + "");
           buffer.concat('.isa.method_msgSend["init"] || _objj_forward)(___r');
-          buffer.concat(varScope.receiverLevel + '');
+          buffer.concat(varScope.receiverLevel + "");
           buffer.concat(', "init"))');
         } else {
-          buffer.concat('(___r');
-          buffer.concat(++varScope.receiverLevel + '');
-          buffer.concat(' = CPDictionary.isa.objj_msgSend0(CPDictionary, "alloc"), ___r');
-          buffer.concat(varScope.receiverLevel + '');
-          buffer.concat(' == null ? ___r');
-          buffer.concat(varScope.receiverLevel + '');
-          buffer.concat(' : ___r');
-          buffer.concat(varScope.receiverLevel + '');
-          buffer.concat('.isa.objj_msgSend0(___r');
-          buffer.concat(varScope.receiverLevel + '');
+          buffer.concat("(___r");
+          buffer.concat(++varScope.receiverLevel + "");
+          buffer.concat(
+            ' = CPDictionary.isa.objj_msgSend0(CPDictionary, "alloc"), ___r'
+          );
+          buffer.concat(varScope.receiverLevel + "");
+          buffer.concat(" == null ? ___r");
+          buffer.concat(varScope.receiverLevel + "");
+          buffer.concat(" : ___r");
+          buffer.concat(varScope.receiverLevel + "");
+          buffer.concat(".isa.objj_msgSend0(___r");
+          buffer.concat(varScope.receiverLevel + "");
           buffer.concat(', "init"))');
         }
 
-        if (!(varScope.maxReceiverLevel >= varScope.receiverLevel)) { varScope.maxReceiverLevel = varScope.receiverLevel; }
+        if (!(varScope.maxReceiverLevel >= varScope.receiverLevel)) {
+          varScope.maxReceiverLevel = varScope.receiverLevel;
+        }
       } else {
         if (compiler.options.inlineMsgSendFunctions) {
-          buffer.concat('(___r', node);
-          buffer.concat(++varScope.receiverLevel + '');
-          buffer.concat(' = (CPDictionary.isa.method_msgSend["alloc"] || _objj_forward)(CPDictionary, "alloc"), ___r');
-          buffer.concat(varScope.receiverLevel + '');
-          buffer.concat(' == null ? ___r');
-          buffer.concat(varScope.receiverLevel + '');
-          buffer.concat(' : (___r');
-          buffer.concat(varScope.receiverLevel + '');
-          buffer.concat('.isa.method_msgSend["initWithObjects:forKeys:"] || _objj_forward)(___r');
-          buffer.concat(varScope.receiverLevel + '');
+          buffer.concat("(___r", node);
+          buffer.concat(++varScope.receiverLevel + "");
+          buffer.concat(
+            ' = (CPDictionary.isa.method_msgSend["alloc"] || _objj_forward)(CPDictionary, "alloc"), ___r'
+          );
+          buffer.concat(varScope.receiverLevel + "");
+          buffer.concat(" == null ? ___r");
+          buffer.concat(varScope.receiverLevel + "");
+          buffer.concat(" : (___r");
+          buffer.concat(varScope.receiverLevel + "");
+          buffer.concat(
+            '.isa.method_msgSend["initWithObjects:forKeys:"] || _objj_forward)(___r'
+          );
+          buffer.concat(varScope.receiverLevel + "");
           buffer.concat(', "initWithObjects:forKeys:", [');
         } else {
-          buffer.concat('(___r', node);
-          buffer.concat(++varScope.receiverLevel + '');
-          buffer.concat(' = CPDictionary.isa.objj_msgSend0(CPDictionary, "alloc"), ___r');
-          buffer.concat(varScope.receiverLevel + '');
-          buffer.concat(' == null ? ___r');
-          buffer.concat(varScope.receiverLevel + '');
-          buffer.concat(' : ___r');
-          buffer.concat(varScope.receiverLevel + '');
-          buffer.concat('.isa.objj_msgSend2(___r');
-          buffer.concat(varScope.receiverLevel + '');
+          buffer.concat("(___r", node);
+          buffer.concat(++varScope.receiverLevel + "");
+          buffer.concat(
+            ' = CPDictionary.isa.objj_msgSend0(CPDictionary, "alloc"), ___r'
+          );
+          buffer.concat(varScope.receiverLevel + "");
+          buffer.concat(" == null ? ___r");
+          buffer.concat(varScope.receiverLevel + "");
+          buffer.concat(" : ___r");
+          buffer.concat(varScope.receiverLevel + "");
+          buffer.concat(".isa.objj_msgSend2(___r");
+          buffer.concat(varScope.receiverLevel + "");
           buffer.concat(', "initWithObjects:forKeys:", [');
         }
 
-        if (!(varScope.maxReceiverLevel >= varScope.receiverLevel)) { varScope.maxReceiverLevel = varScope.receiverLevel; }
+        if (!(varScope.maxReceiverLevel >= varScope.receiverLevel)) {
+          varScope.maxReceiverLevel = varScope.receiverLevel;
+        }
 
         for (let i = 0; i < keyLength; i++) {
           const value = node.values[i];
 
-          if (i) buffer.concat(', ');
-          c(value, st, 'Expression');
+          if (i) buffer.concat(", ");
+          c(value, st, "Expression");
         }
 
-        buffer.concat('], [');
+        buffer.concat("], [");
 
         for (let i = 0; i < keyLength; i++) {
           const key = node.keys[i];
 
-          if (i) buffer.concat(', ');
+          if (i) buffer.concat(", ");
 
-          c(key, st, 'Expression');
+          c(key, st, "Expression");
         }
-        buffer.concat(']))');
+        buffer.concat("]))");
       }
       varScope.receiverLevel--;
     },
@@ -9812,15 +10155,33 @@
       const className = node.classname.name;
       let classDef = compiler.getClassDef(className);
       const classScope = new Scope(st);
-      const isInterfaceDeclaration = node.type === 'InterfaceDeclarationStatement';
+      const isInterfaceDeclaration =
+        node.type === "InterfaceDeclarationStatement";
       const protocols = node.protocols;
       const options = compiler.options;
 
-      compiler.imBuffer = new StringBuffer(compiler.createSourceMap, compiler.URL, options.sourceMap && options.sourceMapIncludeSource ? compiler.source : null);
-      compiler.cmBuffer = new StringBuffer(compiler.createSourceMap, compiler.URL);
-      compiler.classBodyBuffer = new StringBuffer(compiler.createSourceMap, compiler.URL); // TODO: Check if this is needed
+      compiler.imBuffer = new StringBuffer(
+        compiler.createSourceMap,
+        compiler.URL,
+        options.sourceMap && options.sourceMapIncludeSource
+          ? compiler.source
+          : null
+      );
+      compiler.cmBuffer = new StringBuffer(
+        compiler.createSourceMap,
+        compiler.URL
+      );
+      compiler.classBodyBuffer = new StringBuffer(
+        compiler.createSourceMap,
+        compiler.URL
+      ); // TODO: Check if this is needed
 
-      if (compiler.getTypeDef(className)) { throw compiler.error_message(className + ' is already declared as a type', node.classname) }
+      if (compiler.getTypeDef(className)) {
+        throw compiler.error_message(
+          className + " is already declared as a type",
+          node.classname
+        );
+      }
 
       // First we declare the class
       if (node.superclassname) {
@@ -9831,12 +10192,23 @@
 
         // It has a real implementation declaration already
         if (classDef && classDef.ivars) {
-          throw compiler.error_message('Duplicate class ' + className, node.classname)
+          throw compiler.error_message(
+            "Duplicate class " + className,
+            node.classname
+          );
         }
 
         // It has a interface declaration already
-        if (isInterfaceDeclaration && classDef && classDef.instanceMethods && classDef.classMethods) {
-          throw compiler.error_message('Duplicate interface definition for class ' + className, node.classname)
+        if (
+          isInterfaceDeclaration &&
+          classDef &&
+          classDef.instanceMethods &&
+          classDef.classMethods
+        ) {
+          throw compiler.error_message(
+            "Duplicate interface definition for class " + className,
+            node.classname
+          );
         }
         const superClassDef = compiler.getClassDef(node.superclassname.name);
         // if (!superClassDef) { // Don't throw error for this when generating Objective-J code
@@ -9848,27 +10220,63 @@
         //   throw compiler.error_message(errorMessage, node.superclassname)
         // }
 
-        classDef = new ClassDef(!isInterfaceDeclaration, className, superClassDef, Object.create(null));
+        classDef = new ClassDef(
+          !isInterfaceDeclaration,
+          className,
+          superClassDef,
+          Object.create(null)
+        );
 
-        saveJSBuffer.concat('\n{var the_class = objj_allocateClassPair(' + node.superclassname.name + ', "' + className + '"),\nmeta_class = the_class.isa;', node);
+        saveJSBuffer.concat(
+          "\n{var the_class = objj_allocateClassPair(" +
+            node.superclassname.name +
+            ', "' +
+            className +
+            '"),\nmeta_class = the_class.isa;',
+          node
+        );
       } else if (node.categoryname) {
         classDef = compiler.getClassDef(className);
         //if (!classDef) { throw compiler.error_message('Class ' + className + ' not found ', node.classname) }
 
-        saveJSBuffer.concat('{\nvar the_class = objj_getClass("' + className + '")\n', node);
-        saveJSBuffer.concat('if(!the_class) throw new SyntaxError("*** Could not find definition for class \\"' + className + '\\"");\n');
-        saveJSBuffer.concat('var meta_class = the_class.isa;');
+        saveJSBuffer.concat(
+          '{\nvar the_class = objj_getClass("' + className + '")\n',
+          node
+        );
+        saveJSBuffer.concat(
+          'if(!the_class) throw new SyntaxError("*** Could not find definition for class \\"' +
+            className +
+            '\\"");\n'
+        );
+        saveJSBuffer.concat("var meta_class = the_class.isa;");
       } else {
-        classDef = new ClassDef(!isInterfaceDeclaration, className, null, Object.create(null));
+        classDef = new ClassDef(
+          !isInterfaceDeclaration,
+          className,
+          null,
+          Object.create(null)
+        );
 
-        saveJSBuffer.concat('{var the_class = objj_allocateClassPair(Nil, "' + className + '"),\nmeta_class = the_class.isa;', node);
+        saveJSBuffer.concat(
+          '{var the_class = objj_allocateClassPair(Nil, "' +
+            className +
+            '"),\nmeta_class = the_class.isa;',
+          node
+        );
       }
 
       if (protocols) {
         for (let i = 0, size = protocols.length; i < size; i++) {
-          saveJSBuffer.concat('\nvar aProtocol = objj_getProtocol("' + protocols[i].name + '");', protocols[i]);
-          saveJSBuffer.concat('\nif (!aProtocol) throw new SyntaxError("*** Could not find definition for protocol \\"' + protocols[i].name + '\\"");');
-          saveJSBuffer.concat('\nclass_addProtocol(the_class, aProtocol);');
+          saveJSBuffer.concat(
+            '\nvar aProtocol = objj_getProtocol("' + protocols[i].name + '");',
+            protocols[i]
+          );
+          saveJSBuffer.concat(
+            '\nif (!aProtocol) throw new SyntaxError("*** Could not find definition for protocol \\"' +
+              protocols[i].name +
+              '\\"");'
+          );
+          saveJSBuffer.concat("\nclass_addProtocol(the_class, aProtocol);");
         }
       }
       /*
@@ -9876,11 +10284,13 @@
                   classDef.interfaceDeclaration = true;
           */
       classScope.classDef = classDef;
-      compiler.currentSuperClass = 'objj_getClass("' + className + '").super_class';
-      compiler.currentSuperMetaClass = 'objj_getMetaClass("' + className + '").super_class';
+      compiler.currentSuperClass =
+        'objj_getClass("' + className + '").super_class';
+      compiler.currentSuperMetaClass =
+        'objj_getMetaClass("' + className + '").super_class';
 
       let firstIvarDeclaration = true;
-      const ivars = classDef.ivars;
+      const ivars = classDef ? classDef.ivars : [];
       const classDefIvars = [];
       let hasAccessors = false;
 
@@ -9889,45 +10299,103 @@
         for (let i = 0; i < node.ivardeclarations.length; ++i) {
           const ivarDecl = node.ivardeclarations[i];
           const ivarType = ivarDecl.ivartype ? ivarDecl.ivartype.name : null;
-          const ivarTypeIsClass = ivarDecl.ivartype ? ivarDecl.ivartype.typeisclass : false;
+          const ivarTypeIsClass = ivarDecl.ivartype
+            ? ivarDecl.ivartype.typeisclass
+            : false;
           const ivarIdentifier = ivarDecl.id;
           const ivarName = ivarIdentifier.name;
           const ivar = { type: ivarType, name: ivarName };
           const accessors = ivarDecl.accessors;
 
-          const checkIfIvarIsAlreadyDeclaredAndInSuperClass = function (aClassDef, recursiveFunction) {
-            if (aClassDef.ivars[ivarName]) { throw compiler.error_message("Instance variable '" + ivarName + "' is already declared for class " + className + (aClassDef.name !== className ? ' in superclass ' + aClassDef.name : ''), ivarDecl.id) }
-            if (aClassDef.superClass) { recursiveFunction(aClassDef.superClass, recursiveFunction); }
+          const checkIfIvarIsAlreadyDeclaredAndInSuperClass = function (
+            aClassDef,
+            recursiveFunction
+          ) {
+            if (aClassDef.ivars[ivarName]) {
+              throw compiler.error_message(
+                "Instance variable '" +
+                  ivarName +
+                  "' is already declared for class " +
+                  className +
+                  (aClassDef.name !== className
+                    ? " in superclass " + aClassDef.name
+                    : ""),
+                ivarDecl.id
+              );
+            }
+            if (aClassDef.superClass) {
+              recursiveFunction(aClassDef.superClass, recursiveFunction);
+            }
           };
 
           // Check if ivar is already declared in this class or its super classes.
-          checkIfIvarIsAlreadyDeclaredAndInSuperClass(classDef, checkIfIvarIsAlreadyDeclaredAndInSuperClass);
+          checkIfIvarIsAlreadyDeclaredAndInSuperClass(
+            classDef,
+            checkIfIvarIsAlreadyDeclaredAndInSuperClass
+          );
 
-          const isTypeDefined = !ivarTypeIsClass || typeof global[ivarType] !== 'undefined' || (typeof window !== 'undefined' && typeof window[ivarType] !== 'undefined') ||
-            compiler.getClassDef(ivarType) || compiler.getTypeDef(ivarType) || ivarType === classDef.name;
+          const isTypeDefined =
+            !ivarTypeIsClass ||
+            typeof global[ivarType] !== "undefined" ||
+            (typeof window !== "undefined" &&
+              typeof window[ivarType] !== "undefined") ||
+            compiler.getClassDef(ivarType) ||
+            compiler.getTypeDef(ivarType) ||
+            ivarType === classDef.name;
 
-          if (!isTypeDefined && compiler.options.warnings.includes(warningUnknownIvarType)) { compiler.addWarning(createMessage("Unknown type '" + ivarType + "' for ivar '" + ivarName + "'", ivarDecl.ivartype, compiler.source)); }
+          if (
+            !isTypeDefined &&
+            compiler.options.warnings.includes(warningUnknownIvarType)
+          ) {
+            compiler.addWarning(
+              createMessage(
+                "Unknown type '" + ivarType + "' for ivar '" + ivarName + "'",
+                ivarDecl.ivartype,
+                compiler.source
+              )
+            );
+          }
 
           if (firstIvarDeclaration) {
             firstIvarDeclaration = false;
-            saveJSBuffer.concat('class_addIvars(the_class, [');
-          } else { saveJSBuffer.concat(', '); }
+            saveJSBuffer.concat("class_addIvars(the_class, [");
+          } else {
+            saveJSBuffer.concat(", ");
+          }
 
-          if (options.includeIvarTypeSignatures) { saveJSBuffer.concat('new objj_ivar("' + ivarName + '", "' + ivarType + '")', node); } else { saveJSBuffer.concat('new objj_ivar("' + ivarName + '")', node); }
+          if (options.includeIvarTypeSignatures) {
+            saveJSBuffer.concat(
+              'new objj_ivar("' + ivarName + '", "' + ivarType + '")',
+              node
+            );
+          } else {
+            saveJSBuffer.concat('new objj_ivar("' + ivarName + '")', node);
+          }
 
-          if (ivarDecl.outlet) { ivar.outlet = true; }
+          if (ivarDecl.outlet) {
+            ivar.outlet = true;
+          }
 
           // Store the classDef ivars into array and add them later when accessors are created to prevent ivar duplicate error when generating accessors
           classDefIvars.push(ivar);
 
-          if (!classScope.ivars) { classScope.ivars = Object.create(null); }
-          classScope.ivars[ivarName] = { type: 'ivar', name: ivarName, node: ivarIdentifier, ivar };
+          if (!classScope.ivars) {
+            classScope.ivars = Object.create(null);
+          }
+          classScope.ivars[ivarName] = {
+            type: "ivar",
+            name: ivarName,
+            node: ivarIdentifier,
+            ivar,
+          };
 
           if (accessors) {
             // Declare the accessor methods in the class definition.
             // TODO: This next couple of lines for getting getterName and setterName are duplicated from below. Create functions for this.
-            const property = (accessors.property && accessors.property.name) || ivarName;
-            const getterName = (accessors.getter && accessors.getter.name) || property;
+            const property =
+              (accessors.property && accessors.property.name) || ivarName;
+            const getterName =
+              (accessors.getter && accessors.getter.name) || property;
 
             classDef.addInstanceMethod(new MethodDef(getterName, [ivarType]));
 
@@ -9935,17 +10403,26 @@
               let setterName = accessors.setter ? accessors.setter.name : null;
 
               if (!setterName) {
-                const start = property.charAt(0) === '_' ? 1 : 0;
+                const start = property.charAt(0) === "_" ? 1 : 0;
 
-                setterName = (start ? '_' : '') + 'set' + property.substr(start, 1).toUpperCase() + property.substring(start + 1) + ':';
+                setterName =
+                  (start ? "_" : "") +
+                  "set" +
+                  property.substr(start, 1).toUpperCase() +
+                  property.substring(start + 1) +
+                  ":";
               }
-              classDef.addInstanceMethod(new MethodDef(setterName, ['void', ivarType]));
+              classDef.addInstanceMethod(
+                new MethodDef(setterName, ["void", ivarType])
+              );
             }
             hasAccessors = true;
           }
         }
       }
-      if (!firstIvarDeclaration) { saveJSBuffer.concat(']);'); }
+      if (!firstIvarDeclaration) {
+        saveJSBuffer.concat("]);");
+      }
 
       // If we have accessors add get and set methods for them
       if (!isInterfaceDeclaration && hasAccessors) {
@@ -9954,8 +10431,12 @@
 
         // Add the class declaration to compile accessors correctly
         // Remove all protocols from class declaration
-        getterSetterBuffer.concat(compiler.source.substring(node.start, node.endOfIvars).replace(/<.*>/g, ''));
-        getterSetterBuffer.concat('\n');
+        getterSetterBuffer.concat(
+          compiler.source
+            .substring(node.start, node.endOfIvars)
+            .replace(/<.*>/g, "")
+        );
+        getterSetterBuffer.concat("\n");
 
         for (let i = 0; i < node.ivardeclarations.length; ++i) {
           const ivarDecl = node.ivardeclarations[i];
@@ -9963,52 +10444,105 @@
           const ivarName = ivarDecl.id.name;
           const accessors = ivarDecl.accessors;
 
-          if (!accessors) { continue }
+          if (!accessors) {
+            continue;
+          }
 
-          const property = (accessors.property && accessors.property.name) || ivarName;
-          const getterName = (accessors.getter && accessors.getter.name) || property;
-          const getterCode = '- (' + (ivarType || 'id') + ')' + getterName + '\n{\n    return ' + ivarName + ';\n}\n';
+          const property =
+            (accessors.property && accessors.property.name) || ivarName;
+          const getterName =
+            (accessors.getter && accessors.getter.name) || property;
+          const getterCode =
+            "- (" +
+            (ivarType || "id") +
+            ")" +
+            getterName +
+            "\n{\n    return " +
+            ivarName +
+            ";\n}\n";
 
           getterSetterBuffer.concat(getterCode);
 
-          if (accessors.readonly) { continue }
+          if (accessors.readonly) {
+            continue;
+          }
 
           let setterName = accessors.setter ? accessors.setter.name : null;
 
           if (!setterName) {
-            const start = property.charAt(0) === '_' ? 1 : 0;
+            const start = property.charAt(0) === "_" ? 1 : 0;
 
-            setterName = (start ? '_' : '') + 'set' + property.substr(start, 1).toUpperCase() + property.substring(start + 1) + ':';
+            setterName =
+              (start ? "_" : "") +
+              "set" +
+              property.substr(start, 1).toUpperCase() +
+              property.substring(start + 1) +
+              ":";
           }
 
-          let setterCode = '- (void)' + setterName + '(' + (ivarType || 'id') + ')newValue\n{\n    ';
+          let setterCode =
+            "- (void)" +
+            setterName +
+            "(" +
+            (ivarType || "id") +
+            ")newValue\n{\n    ";
 
-          if (accessors.copy) { setterCode += 'if (' + ivarName + ' !== newValue)\n        ' + ivarName + ' = [newValue copy];\n}\n'; } else { setterCode += ivarName + ' = newValue;\n}\n'; }
+          if (accessors.copy) {
+            setterCode +=
+              "if (" +
+              ivarName +
+              " !== newValue)\n        " +
+              ivarName +
+              " = [newValue copy];\n}\n";
+          } else {
+            setterCode += ivarName + " = newValue;\n}\n";
+          }
 
           getterSetterBuffer.concat(setterCode);
         }
 
-        getterSetterBuffer.concat('\n@end');
+        getterSetterBuffer.concat("\n@end");
 
         // Remove all @accessors or we will get a recursive loop in infinity
-        const b = getterSetterBuffer.toString().replace(/@accessors(\(.*\))?/g, '');
+        const b = getterSetterBuffer
+          .toString()
+          .replace(/@accessors(\(.*\))?/g, "");
         const compilerOptions = setupOptions(options);
 
         compilerOptions.sourceMapIncludeSource = true;
         const url = compiler.url;
-        const filename = url && compiler.URL.substr(compiler.URL.lastIndexOf('/') + 1);
-        const dotIndex = filename && filename.lastIndexOf('.');
-        const filenameNoExt = filename && (filename.substr(0, dotIndex === -1 ? filename.length : dotIndex));
-        const filenameExt = filename && filename.substr(dotIndex === -1 ? filename.length : dotIndex);
+        const filename =
+          url && compiler.URL.substr(compiler.URL.lastIndexOf("/") + 1);
+        const dotIndex = filename && filename.lastIndexOf(".");
+        const filenameNoExt =
+          filename &&
+          filename.substr(0, dotIndex === -1 ? filename.length : dotIndex);
+        const filenameExt =
+          filename &&
+          filename.substr(dotIndex === -1 ? filename.length : dotIndex);
         const categoryname = node.categoryname && node.categoryname.id;
-        const imBuffer = exports.compileToIMBuffer(b, filenameNoExt + '_' + className + (categoryname ? '_' + categoryname : '') + '_Accessors' + (filenameExt || ''), compilerOptions);
+        const imBuffer = exports.compileToIMBuffer(
+          b,
+          filenameNoExt +
+            "_" +
+            className +
+            (categoryname ? "_" + categoryname : "") +
+            "_Accessors" +
+            (filenameExt || ""),
+          compilerOptions
+        );
 
         // Add the accessors methods first to instance method buffer.
         // This will allow manually added set and get methods to override the compiler generated
         const generatedCode = imBuffer.toString();
 
         if (compiler.createSourceMap) {
-          compiler.imBuffer.concat(sourceMap.SourceNode.fromStringWithSourceMap(generatedCode.code, sourceMap.SourceMapConsumer(generatedCode.map.toString())));
+          compiler.imBuffer.concat(
+            sourceMap.SourceNode.fromStringWithSourceMap(
+              generatedCode.code,
+              sourceMap.SourceMapConsumer(generatedCode.map.toString())
+            )
+          );
         } else {
           compiler.imBuffer.concat(generatedCode);
         }
@@ -10033,30 +10567,30 @@
         // And last add methods and other statements
         for (let i = 0; i < bodyLength; ++i) {
           const body = bodies[i];
-          c(body, classScope, 'Statement');
+          c(body, classScope, "Statement");
         }
       }
 
       // We must make a new class object for our class definition if it's not a category
       if (!isInterfaceDeclaration && !node.categoryname) {
-        saveJSBuffer.concat('objj_registerClassPair(the_class);\n');
+        saveJSBuffer.concat("objj_registerClassPair(the_class);\n");
       }
 
       // Add instance methods
       if (compiler.imBuffer.isEmpty()) {
-        saveJSBuffer.concat('class_addMethods(the_class, [');
+        saveJSBuffer.concat("class_addMethods(the_class, [");
         saveJSBuffer.appendStringBuffer(compiler.imBuffer);
-        saveJSBuffer.concat(']);\n');
+        saveJSBuffer.concat("]);\n");
       }
 
       // Add class methods
       if (compiler.cmBuffer.isEmpty()) {
-        saveJSBuffer.concat('class_addMethods(meta_class, [');
+        saveJSBuffer.concat("class_addMethods(meta_class, [");
         saveJSBuffer.appendStringBuffer(compiler.cmBuffer);
-        saveJSBuffer.concat(']);\n');
+        saveJSBuffer.concat("]);\n");
       }
 
-      saveJSBuffer.concat('}\n');
+      saveJSBuffer.concat("}\n");
 
       compiler.jsBuffer = saveJSBuffer;
 
@@ -10071,20 +10605,40 @@
           const protocol = protocols[i];
           const protocolDef = compiler.getProtocolDef(protocol.name);
 
-          if (!protocolDef) { throw compiler.error_message("Cannot find protocol declaration for '" + protocol.name + "'", protocol) }
+          if (!protocolDef) {
+            throw compiler.error_message(
+              "Cannot find protocol declaration for '" + protocol.name + "'",
+              protocol
+            );
+          }
 
           protocolDefs.push(protocolDef);
         }
 
-        const unimplementedMethods = classDef.listOfNotImplementedMethodsForProtocols(protocolDefs);
+        const unimplementedMethods =
+          classDef.listOfNotImplementedMethodsForProtocols(protocolDefs);
 
         if (unimplementedMethods && unimplementedMethods.length > 0) {
-          for (let j = 0, unimpSize = unimplementedMethods.length; j < unimpSize; j++) {
+          for (
+            let j = 0, unimpSize = unimplementedMethods.length;
+            j < unimpSize;
+            j++
+          ) {
             const unimplementedMethod = unimplementedMethods[j];
             const methodDef = unimplementedMethod.methodDef;
             const protocolDef = unimplementedMethod.protocolDef;
 
-            compiler.addWarning(createMessage("Method '" + methodDef.name + "' in protocol '" + protocolDef.name + "' is not implemented", node.classname, compiler.source));
+            compiler.addWarning(
+              createMessage(
+                "Method '" +
+                  methodDef.name +
+                  "' in protocol '" +
+                  protocolDef.name +
+                  "' is not implemented",
+                node.classname,
+                compiler.source
+              )
+            );
           }
         }
       }
@@ -10098,24 +10652,55 @@
       const protocolScope = new Scope(st);
       const inheritFromProtocols = [];
 
-      if (protocolDef) { throw compiler.error_message('Duplicate protocol ' + protocolName, node.protocolname) }
+      if (protocolDef) {
+        throw compiler.error_message(
+          "Duplicate protocol " + protocolName,
+          node.protocolname
+        );
+      }
 
-      compiler.imBuffer = new StringBuffer(compiler.createSourceMap, compiler.URL);
-      compiler.cmBuffer = new StringBuffer(compiler.createSourceMap, compiler.URL);
+      compiler.imBuffer = new StringBuffer(
+        compiler.createSourceMap,
+        compiler.URL
+      );
+      compiler.cmBuffer = new StringBuffer(
+        compiler.createSourceMap,
+        compiler.URL
+      );
 
-      buffer.concat('{var the_protocol = objj_allocateProtocol("' + protocolName + '");', node);
+      buffer.concat(
+        '{var the_protocol = objj_allocateProtocol("' + protocolName + '");',
+        node
+      );
 
       if (protocols) {
         for (let i = 0, size = protocols.length; i < size; i++) {
           const protocol = protocols[i];
           const inheritFromProtocolName = protocol.name;
-          const inheritProtocolDef = compiler.getProtocolDef(inheritFromProtocolName);
+          const inheritProtocolDef = compiler.getProtocolDef(
+            inheritFromProtocolName
+          );
 
-          if (!inheritProtocolDef) { throw compiler.error_message("Can't find protocol " + inheritFromProtocolName, protocol) }
+          if (!inheritProtocolDef) {
+            throw compiler.error_message(
+              "Can't find protocol " + inheritFromProtocolName,
+              protocol
+            );
+          }
 
-          buffer.concat('\nvar aProtocol = objj_getProtocol("' + inheritFromProtocolName + '");', node);
-          buffer.concat('\nif (!aProtocol) throw new SyntaxError("*** Could not find definition for protocol \\"' + protocolName + '\\"");', node);
-          buffer.concat('\nprotocol_addProtocol(the_protocol, aProtocol);', node);
+          buffer.concat(
+            '\nvar aProtocol = objj_getProtocol("' +
+              inheritFromProtocolName +
+              '");',
+            node
+          );
+          buffer.concat(
+            '\nif (!aProtocol) throw new SyntaxError("*** Could not find definition for protocol \\"' +
+              protocolName +
+              '\\"");',
+            node
+          );
+          buffer.concat("\nprotocol_addProtocol(the_protocol, aProtocol);", node);
 
           inheritFromProtocols.push(inheritProtocolDef);
         }
@@ -10134,28 +10719,28 @@
           // We only add the required methods
           for (let i = 0; i < requiredLength; ++i) {
             const required = someRequired[i];
-            c(required, protocolScope, 'Statement');
+            c(required, protocolScope, "Statement");
           }
         }
       }
 
-      buffer.concat('\nobjj_registerProtocol(the_protocol);\n');
+      buffer.concat("\nobjj_registerProtocol(the_protocol);\n");
 
       // Add instance methods
       if (compiler.imBuffer.isEmpty()) {
-        buffer.concat('protocol_addMethodDescriptions(the_protocol, [');
+        buffer.concat("protocol_addMethodDescriptions(the_protocol, [");
         buffer.appendStringBuffer(compiler.imBuffer);
-        buffer.concat('], true, true);\n');
+        buffer.concat("], true, true);\n");
       }
 
       // Add class methods
       if (compiler.cmBuffer.isEmpty()) {
-        buffer.concat('protocol_addMethodDescriptions(the_protocol, [');
+        buffer.concat("protocol_addMethodDescriptions(the_protocol, [");
         buffer.appendStringBuffer(compiler.cmBuffer);
-        buffer.concat('], true, false);\n');
+        buffer.concat("], true, false);\n");
       }
 
-      buffer.concat('}');
+      buffer.concat("}");
 
       compiler.jsBuffer = buffer;
 
@@ -10165,21 +10750,25 @@
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
 
-      if (node.outlet) { buffer.concat('@outlet '); }
-      c(node.ivartype, st, 'VariablePattern');
-      buffer.concat(' ');
-      c(node.id, st, 'VariablePattern');
-      if (node.accessors) { buffer.concat(' @accessors'); }
+      if (node.outlet) {
+        buffer.concat("@outlet ");
+      }
+      c(node.ivartype, st, "VariablePattern");
+      buffer.concat(" ");
+      c(node.id, st, "VariablePattern");
+      if (node.accessors) {
+        buffer.concat(" @accessors");
+      }
     },
     MethodDeclarationStatement: function (node, st, c) {
       const compiler = st.compiler;
       const saveJSBuffer = compiler.jsBuffer;
       const methodScope = new FunctionScope(st);
-      const isInstanceMethodType = node.methodtype === '-';
+      const isInstanceMethodType = node.methodtype === "-";
       const selectors = node.selectors;
       const nodeArguments = node.arguments;
       const returnType = node.returntype;
-      const types = [returnType ? returnType.name : (node.action ? 'void' : 'id')]; // Return type is 'id' as default except if it is an action declared method, then it's 'void'
+      const types = [returnType ? returnType.name : node.action ? "void" : "id"]; // Return type is 'id' as default except if it is an action declared method, then it's 'void'
       const returnTypeProtocols = returnType ? returnType.protocols : null;
       let selector = selectors[0].name; // There is always at least one selector
 
@@ -10187,14 +10776,24 @@
         for (let i = 0, size = returnTypeProtocols.length; i < size; i++) {
           const returnTypeProtocol = returnTypeProtocols[i];
           if (!compiler.getProtocolDef(returnTypeProtocol.name)) {
-            compiler.addWarning(createMessage("Cannot find protocol declaration for '" + returnTypeProtocol.name + "'", returnTypeProtocol, compiler.source));
+            compiler.addWarning(
+              createMessage(
+                "Cannot find protocol declaration for '" +
+                  returnTypeProtocol.name +
+                  "'",
+                returnTypeProtocol,
+                compiler.source
+              )
+            );
           }
         }
       }
 
       // If we are generating objective-J code write everything directly to the regular buffer
       // Otherwise we have one for instance methods and one for class methods.
-      compiler.jsBuffer = isInstanceMethodType ? compiler.imBuffer : compiler.cmBuffer;
+      compiler.jsBuffer = isInstanceMethodType
+        ? compiler.imBuffer
+        : compiler.cmBuffer;
 
       // Put together the selector. Maybe this should be done in the parser...
       // Or maybe we should do it here as when genereting Objective-J code it's kind of handy
@@ -10202,18 +10801,30 @@
         for (let i = 0; i < nodeArguments.length; i++) {
           const argument = nodeArguments[i];
           const argumentType = argument.type;
-          const argumentTypeName = argumentType ? argumentType.name : 'id';
+          const argumentTypeName = argumentType ? argumentType.name : "id";
           const argumentProtocols = argumentType ? argumentType.protocols : null;
 
           types.push(argumentTypeName);
 
-          if (i === 0) { selector += ':'; } else { selector += (selectors[i] ? selectors[i].name : '') + ':'; }
+          if (i === 0) {
+            selector += ":";
+          } else {
+            selector += (selectors[i] ? selectors[i].name : "") + ":";
+          }
 
           if (argumentProtocols) {
             for (let j = 0; j < argumentProtocols.length; j++) {
               const argumentProtocol = argumentProtocols[j];
               if (!compiler.getProtocolDef(argumentProtocol.name)) {
-                compiler.addWarning(createMessage("Cannot find protocol declaration for '" + argumentProtocol.name + "'", argumentProtocol, compiler.source));
+                compiler.addWarning(
+                  createMessage(
+                    "Cannot find protocol declaration for '" +
+                      argumentProtocol.name +
+                      "'",
+                    argumentProtocol,
+                    compiler.source
+                  )
+                );
               }
             }
           }
@@ -10222,7 +10833,7 @@
 
       // Add comma separator if this is not first method in this buffer
       if (compiler.jsBuffer.isEmpty()) {
-        compiler.jsBuffer.concat(', ');
+        compiler.jsBuffer.concat(", ");
       }
 
       compiler.jsBuffer.concat('new objj_method(sel_getUid("', node);
@@ -10230,50 +10841,60 @@
       compiler.jsBuffer.concat('"), ');
 
       if (node.body) {
-        if (node.async) { compiler.jsBuffer.concat('async '); }
-        compiler.jsBuffer.concat('function');
+        if (node.async) {
+          compiler.jsBuffer.concat("async ");
+        }
+        compiler.jsBuffer.concat("function");
 
         if (compiler.options.includeMethodFunctionNames) {
-          compiler.jsBuffer.concat(' $' + st.currentClassName() + '__' + selector.replace(/:/g, '_'));
+          compiler.jsBuffer.concat(
+            " $" + st.currentClassName() + "__" + selector.replace(/:/g, "_")
+          );
         }
 
-        compiler.jsBuffer.concat('(self, _cmd');
+        compiler.jsBuffer.concat("(self, _cmd");
 
         methodScope.methodType = node.methodtype;
-        methodScope.vars.self = { type: 'method base', scope: methodScope };
-        methodScope.vars._cmd = { type: 'method base', scope: methodScope };
+        methodScope.vars.self = { type: "method base", scope: methodScope };
+        methodScope.vars._cmd = { type: "method base", scope: methodScope };
 
         if (nodeArguments) {
           for (let i = 0; i < nodeArguments.length; i++) {
             const argument = nodeArguments[i];
             const argumentName = argument.identifier.name;
 
-            compiler.jsBuffer.concat(', ');
+            compiler.jsBuffer.concat(", ");
             compiler.jsBuffer.concat(argumentName, argument.identifier);
 
-            methodScope.vars[argumentName] = { type: 'method argument', node: argument };
+            methodScope.vars[argumentName] = {
+              type: "method argument",
+              node: argument,
+            };
           }
         }
 
-        compiler.jsBuffer.concat(')\n');
+        compiler.jsBuffer.concat(")\n");
 
         st.compiler.indentation += st.compiler.indentStep;
         methodScope.endOfScopeBody = true;
-   
-   
-        c(node.body, methodScope, 'Statement');
-        
-        
-        methodScope.variablesNotReadWarnings();
-        st.compiler.indentation = st.compiler.indentation.substring(st.compiler.indentationSize);
 
-        compiler.jsBuffer.concat('\n');
-      } else { // It is a interface or protocol declatartion and we don't have a method implementation
-        compiler.jsBuffer.concat('Nil\n');
+        c(node.body, methodScope, "Statement");
+
+        methodScope.variablesNotReadWarnings();
+        st.compiler.indentation = st.compiler.indentation.substring(
+          st.compiler.indentationSize
+        );
+
+        compiler.jsBuffer.concat("\n");
+      } else {
+        // It is a interface or protocol declatartion and we don't have a method implementation
+        compiler.jsBuffer.concat("Nil\n");
       }
 
-      if (compiler.options.includeMethodArgumentTypeSignatures) { compiler.jsBuffer.concat(',' + JSON.stringify(types)); }
-      compiler.jsBuffer.concat(')');
+      if (compiler.options.includeMethodArgumentTypeSignatures) {
+        compiler.jsBuffer.concat("," + JSON.stringify(types));
+      }
+      compiler.jsBuffer.concat(")");
       compiler.jsBuffer = saveJSBuffer;
 
       // Add the method to the class or protocol definition
@@ -10281,22 +10902,37 @@
       let alreadyDeclared;
 
       // But first, if it is a class definition check if it is declared in superclass or interface declaration
-      if (def) { alreadyDeclared = isInstanceMethodType ? def.getInstanceMethod(selector) : def.getClassMethod(selector); } else { def = st.protocolDef; }
+      if (def) {
+        alreadyDeclared = isInstanceMethodType
+          ? def.getInstanceMethod(selector)
+          : def.getClassMethod(selector);
+      } else {
+        def = st.protocolDef;
+      }
 
-      if (!def) { throw new Error('InternalError: MethodDeclaration without ClassDeclaration or ProtocolDeclaration at line: ' + getLineInfo(compiler.source, node.start).line) }
+      // if (!def) {
+      //   throw new Error(
+      //     "InternalError: MethodDeclaration without ClassDeclaration or ProtocolDeclaration at line: " +
+      //       getLineInfo(compiler.source, node.start).line
+      //   );
+      // }
 
       // Create warnings if types does not corresponds to method declaration in superclass or interface declarations
       // If we don't find the method in superclass or interface declarations above or if it is a protocol
       // declaration, try to find it in any of the conforming protocols
-      if (!alreadyDeclared) {
+      if (def && !alreadyDeclared) {
         const protocols = def.protocols;
 
         if (protocols) {
           for (let i = 0; i < protocols.length; i++) {
             const protocol = protocols[i];
-            alreadyDeclared = isInstanceMethodType ? protocol.getInstanceMethod(selector) : protocol.getClassMethod(selector);
+            alreadyDeclared = isInstanceMethodType
+              ? protocol.getInstanceMethod(selector)
+              : protocol.getClassMethod(selector);
 
-            if (alreadyDeclared) { break }
+            if (alreadyDeclared) {
+              break;
+            }
           }
         }
       }
@@ -10311,13 +10947,51 @@
             const declaredReturnType = declaredTypes[0];
 
             // Create warning if return types is not the same. It is ok if superclass has 'id' and subclass has a class type
-            if (declaredReturnType !== types[0] && !(declaredReturnType === 'id' && returnType && returnType.typeisclass)) { compiler.addWarning(createMessage("Conflicting return type in implementation of '" + selector + "': '" + declaredReturnType + "' vs '" + types[0] + "'", returnType || node.action || selectors[0], compiler.source)); }
+            if (
+              declaredReturnType !== types[0] &&
+              !(
+                declaredReturnType === "id" &&
+                returnType &&
+                returnType.typeisclass
+              )
+            ) {
+              compiler.addWarning(
+                createMessage(
+                  "Conflicting return type in implementation of '" +
+                    selector +
+                    "': '" +
+                    declaredReturnType +
+                    "' vs '" +
+                    types[0] +
+                    "'",
+                  returnType || node.action || selectors[0],
+                  compiler.source
+                )
+              );
+            }
 
             // Check the parameter types. The size of the two type arrays should be the same as they have the same selector.
             for (let i = 1; i < typeSize; i++) {
               const parameterType = declaredTypes[i];
 
-              if (parameterType !== types[i] && !(parameterType === 'id' && nodeArguments[i - 1].type.typeisclass)) { compiler.addWarning(createMessage("Conflicting parameter types in implementation of '" + selector + "': '" + parameterType + "' vs '" + types[i] + "'", nodeArguments[i - 1].type || nodeArguments[i - 1].identifier, compiler.source)); }
+              if (
+                parameterType !== types[i] &&
+                !(parameterType === "id" && nodeArguments[i - 1].type.typeisclass)
+              ) {
+                compiler.addWarning(
+                  createMessage(
+                    "Conflicting parameter types in implementation of '" +
+                      selector +
+                      "': '" +
+                      parameterType +
+                      "' vs '" +
+                      types[i] +
+                      "'",
+                    nodeArguments[i - 1].type || nodeArguments[i - 1].identifier,
+                    compiler.source
+                  )
+                );
+              }
             }
           }
         }
@@ -10326,7 +11000,13 @@
       // Now we add it
       const methodDef = new MethodDef(selector, types);
 
-      if (isInstanceMethodType) { def.addInstanceMethod(methodDef); } else { def.addClassMethod(methodDef); }
+      if (def) {
+        if (isInstanceMethodType) {
+          def.addInstanceMethod(methodDef);
+        } else {
+          def.addClassMethod(methodDef);
+        }
+      }
     },
     MessageSendExpression: function (node, st, c) {
       const compiler = st.compiler;
@@ -10337,7 +11017,7 @@
       const nodeArguments = node.arguments;
       const argumentsLength = nodeArguments.length;
       const firstSelector = selectors[0];
-      let selector = firstSelector ? firstSelector.name : ''; // There is always at least one selector
+      let selector = firstSelector ? firstSelector.name : ""; // There is always at least one selector
       const parameters = node.parameters;
       const options = compiler.options;
       const varScope = st.getVarScope();
@@ -10346,79 +11026,107 @@
       for (let i = 0; i < argumentsLength; i++) {
         if (i !== 0) {
           const nextSelector = selectors[i];
-          if (nextSelector) { selector += nextSelector.name; }
+          if (nextSelector) {
+            selector += nextSelector.name;
+          }
         }
-        selector += ':';
+        selector += ":";
       }
       let totalNoOfParameters;
       if (!inlineMsgSend) {
         // Find out the total number of arguments so we can choose appropriate msgSend function. Only needed if call the function and not inline it
         totalNoOfParameters = argumentsLength;
 
-        if (parameters) { totalNoOfParameters += parameters.length; }
+        if (parameters) {
+          totalNoOfParameters += parameters.length;
+        }
       }
       let receiverIsIdentifier;
       let receiverIsNotSelf;
       let selfLvar;
       if (node.superObject) {
         if (inlineMsgSend) {
-          buffer.concat('(', node);
-          buffer.concat(st.currentMethodType() === '+' ? compiler.currentSuperMetaClass : compiler.currentSuperClass);
+          buffer.concat("(", node);
+          buffer.concat(
+            st.currentMethodType() === "+"
+              ? compiler.currentSuperMetaClass
+              : compiler.currentSuperClass
+          );
           buffer.concat('.method_dtable["', node);
           buffer.concat(selector);
           buffer.concat('"] || _objj_forward)(self', node);
         } else {
-          buffer.concat('objj_msgSendSuper', node);
+          buffer.concat("objj_msgSendSuper", node);
           if (totalNoOfParameters < 4) {
-            buffer.concat('' + totalNoOfParameters);
+            buffer.concat("" + totalNoOfParameters);
           }
-          buffer.concat('({ receiver:self, super_class:' + (st.currentMethodType() === '+' ? compiler.currentSuperMetaClass : compiler.currentSuperClass) + ' }', node);
+          buffer.concat(
+            "({ receiver:self, super_class:" +
+              (st.currentMethodType() === "+"
+                ? compiler.currentSuperMetaClass
+                : compiler.currentSuperClass) +
+              " }",
+            node
+          );
         }
       } else {
         // If the recevier is not an identifier or an ivar that should have 'self.' infront we need to assign it to a temporary variable
         // If it is 'self' we assume it will never be nil and remove that test
-        receiverIsIdentifier = nodeObject.type === 'Identifier' && !(st.currentMethodType() === '-' && compiler.getIvarForClass(nodeObject.name, st) && !st.getLvar(nodeObject.name, true));
+        receiverIsIdentifier =
+          nodeObject.type === "Identifier" &&
+          !(
+            st.currentMethodType() === "-" &&
+            compiler.getIvarForClass(nodeObject.name, st) &&
+            !st.getLvar(nodeObject.name, true)
+          );
 
         if (receiverIsIdentifier) {
           const name = nodeObject.name;
           selfLvar = st.getLvar(name);
 
-          if (name === 'self') {
-            receiverIsNotSelf = !selfLvar || !selfLvar.scope || selfLvar.scope.assignmentToSelf;
+          if (name === "self") {
+            receiverIsNotSelf =
+              !selfLvar || !selfLvar.scope || selfLvar.scope.assignmentToSelf;
           } else {
             receiverIsNotSelf = !!selfLvar || !compiler.getClassDef(name);
           }
 
           if (receiverIsNotSelf) {
-            buffer.concat('(', node);
-            c(nodeObject, st, 'Expression');
-            buffer.concat(' == null ? ', node);
-            c(nodeObject, st, 'Expression');
-            buffer.concat(' : ', node);
+            buffer.concat("(", node);
+            c(nodeObject, st, "Expression");
+            buffer.concat(" == null ? ", node);
+            c(nodeObject, st, "Expression");
+            buffer.concat(" : ", node);
           }
-          if (inlineMsgSend) { buffer.concat('(', node); }
-          c(nodeObject, st, 'Expression');
+          if (inlineMsgSend) {
+            buffer.concat("(", node);
+          }
+          c(nodeObject, st, "Expression");
         } else {
           receiverIsNotSelf = true;
           if (!varScope.receiverLevel) varScope.receiverLevel = 0;
-          buffer.concat('((___r' + ++varScope.receiverLevel, node);
-          buffer.concat(' = ', node);
-          c(nodeObject, st, 'Expression');
-          buffer.concat(')', node);
-          buffer.concat(', ___r' + varScope.receiverLevel, node);
-          buffer.concat(' == null ? ', node);
-          buffer.concat('___r' + varScope.receiverLevel, node);
-          buffer.concat(' : ', node);
-          if (inlineMsgSend) { buffer.concat('(', node); }
-          buffer.concat('___r' + varScope.receiverLevel, node);
-          if (!(varScope.maxReceiverLevel >= varScope.receiverLevel)) { varScope.maxReceiverLevel = varScope.receiverLevel; }
+          buffer.concat("((___r" + ++varScope.receiverLevel, node);
+          buffer.concat(" = ", node);
+          c(nodeObject, st, "Expression");
+          buffer.concat(")", node);
+          buffer.concat(", ___r" + varScope.receiverLevel, node);
+          buffer.concat(" == null ? ", node);
+          buffer.concat("___r" + varScope.receiverLevel, node);
+          buffer.concat(" : ", node);
+          if (inlineMsgSend) {
+            buffer.concat("(", node);
+          }
+          buffer.concat("___r" + varScope.receiverLevel, node);
+          if (!(varScope.maxReceiverLevel >= varScope.receiverLevel)) {
+            varScope.maxReceiverLevel = varScope.receiverLevel;
+          }
         }
         if (inlineMsgSend) {
           buffer.concat('.isa.method_msgSend["', node);
           buffer.concat(selector, node);
           buffer.concat('"] || _objj_forward)', node);
         } else {
-          buffer.concat('.isa.objj_msgSend', node);
+          buffer.concat(".isa.objj_msgSend", node);
         }
       }
 
@@ -10427,22 +11135,22 @@
       if (!node.superObject) {
         if (!inlineMsgSend) {
           if (totalNoOfParameters < 4) {
-            buffer.concat('' + totalNoOfParameters, node);
+            buffer.concat("" + totalNoOfParameters, node);
           }
         }
 
         if (receiverIsIdentifier) {
-          buffer.concat('(', node);
-          c(nodeObject, st, 'Expression');
+          buffer.concat("(", node);
+          c(nodeObject, st, "Expression");
         } else {
-          buffer.concat('(___r' + varScope.receiverLevel, node);
+          buffer.concat("(___r" + varScope.receiverLevel, node);
         }
 
         // Only do this if source map is enabled and we have an identifier
-        if (options.sourceMap && nodeObject.type === 'Identifier') {
+        if (options.sourceMap && nodeObject.type === "Identifier") {
           // Get target expression for sourcemap to allow hovering selector to show method function. Create new buffer to write in.
           compiler.jsBuffer = new StringBuffer();
-          c(nodeObject, st, 'Expression');
+          c(nodeObject, st, "Expression");
           const aTarget = compiler.jsBuffer.toString();
           selectorJSPath = aTarget + '.isa.method_dtable["' + selector + '"]';
           // Restored buffer so everything will continue as usually.
@@ -10450,14 +11158,14 @@
         }
       }
 
-      buffer.concat(', ', node);
+      buffer.concat(", ", node);
       if (selectorJSPath) {
-        buffer.concat('(', node);
+        buffer.concat("(", node);
         for (let i = 0; i < selectors.length; i++) {
           const nextSelector = selectors[i];
           if (nextSelector) {
             buffer.concat(selectorJSPath, nextSelector);
-            buffer.concat(', ', node);
+            buffer.concat(", ", node);
           }
         }
       }
@@ -10470,8 +11178,8 @@
         for (let i = 0; i < nodeArguments.length; i++) {
           const argument = nodeArguments[i];
 
-          buffer.concat(', ', node);
-          c(argument, st, 'Expression');
+          buffer.concat(", ", node);
+          c(argument, st, "Expression");
         }
       }
 
@@ -10479,17 +11187,21 @@
         for (let i = 0; i < parameters.length; ++i) {
           const parameter = parameters[i];
 
-          buffer.concat(', ', node);
-          c(parameter, st, 'Expression');
+          buffer.concat(", ", node);
+          c(parameter, st, "Expression");
         }
       }
 
       if (!node.superObject) {
-        if (receiverIsNotSelf) { buffer.concat(')', node); }
-        if (!receiverIsIdentifier) { varScope.receiverLevel--; }
+        if (receiverIsNotSelf) {
+          buffer.concat(")", node);
+        }
+        if (!receiverIsIdentifier) {
+          varScope.receiverLevel--;
+        }
       }
 
-      buffer.concat(')', node);
+      buffer.concat(")", node);
     },
     SelectorLiteralExpression: function (node, st, c) {
       const compiler = st.compiler;
@@ -10504,18 +11216,18 @@
       const buffer = compiler.jsBuffer;
 
       buffer.concat('objj_getProtocol("', node);
-      c(node.id, st, 'VariablePattern');
+      c(node.id, st, "VariablePattern");
       buffer.concat('")');
     },
     Reference: function (node, st, c) {
       const compiler = st.compiler;
       const buffer = compiler.jsBuffer;
 
-      buffer.concat('function(__input) { if (arguments.length) return ', node);
-      c(node.element, st, 'Expression');
-      buffer.concat(' = __input; return ');
-      c(node.element, st, 'Expression');
-      buffer.concat('; }');
+      buffer.concat("function(__input) { if (arguments.length) return ", node);
+      c(node.element, st, "Expression");
+      buffer.concat(" = __input; return ");
+      c(node.element, st, "Expression");
+      buffer.concat("; }");
     },
     Dereference: function (node, st, c) {
       const compiler = st.compiler;
@@ -10525,22 +11237,27 @@
 
       // @deref(y) -> y()
       // @deref(@deref(y)) -> y()()
-      c(node.expr, st, 'Expression');
-      buffer.concat('()');
+      c(node.expr, st, "Expression");
+      buffer.concat("()");
     },
     ClassStatement: function (node, st, c) {
       const compiler = st.compiler;
       const className = node.id.name;
 
-      if (compiler.getTypeDef(className)) { throw compiler.error_message(className + ' is already declared as a type', node.id) }
+      if (compiler.getTypeDef(className)) {
+        throw compiler.error_message(
+          className + " is already declared as a type",
+          node.id
+        );
+      }
 
       if (!compiler.getClassDef(className)) {
         compiler.classDefs[className] = new ClassDef(false, className);
       }
-      st.vars[node.id.name] = { type: 'class', node: node.id };
+      st.vars[node.id.name] = { type: "class", node: node.id };
     },
     GlobalStatement: function (node, st, c) {
-      st.rootScope().vars[node.id.name] = { type: 'global', node: node.id };
+      st.rootScope().vars[node.id.name] = { type: "global", node: node.id };
     },
     PreprocessStatement: ignore,
     TypeDefStatement: function (node, st, c) {
@@ -10550,22 +11267,35 @@
       let typeDef = compiler.getTypeDef(typeDefName);
       const typeDefScope = new Scope(st);
 
-      if (typeDef) { throw compiler.error_message('Duplicate type definition ' + typeDefName, node.typedefname) }
+      if (typeDef) {
+        throw compiler.error_message(
+          "Duplicate type definition " + typeDefName,
+          node.typedefname
+        );
+      }
 
-      if (compiler.getClassDef(typeDefName)) { throw compiler.error_message(typeDefName + ' is already declared as class', node.typedefname) }
+      if (compiler.getClassDef(typeDefName)) {
+        throw compiler.error_message(
+          typeDefName + " is already declared as class",
+          node.typedefname
+        );
+      }
 
-      buffer.concat('{var the_typedef = objj_allocateTypeDef("' + typeDefName + '");', node);
+      buffer.concat(
+        '{var the_typedef = objj_allocateTypeDef("' + typeDefName + '");',
+        node
+      );
 
       typeDef = new TypeDef(typeDefName);
       compiler.typeDefs[typeDefName] = typeDef;
       typeDefScope.typeDef = typeDef;
 
-      buffer.concat('\nobjj_registerTypeDef(the_typedef);\n');
+      buffer.concat("\nobjj_registerTypeDef(the_typedef);\n");
 
-      buffer.concat('}');
+      buffer.concat("}");
 
       // Skip to the end
-    }
+    },
   });
 
   // ObjJAcornCompiler was written by Martin Carlberg and released under

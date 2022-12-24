@@ -4,6 +4,7 @@ const FileLocations = require("../FileLocations");
 const child_process = require("child_process");
 
 const { removeFirstAndLastChar } = require("../Utils");
+const { fail } = require("assert");
 
 const getDependenciesFromPreprocessor = function (filePath) {
   return new Promise((finish, fail) => {
@@ -11,8 +12,7 @@ const getDependenciesFromPreprocessor = function (filePath) {
     const cmd = `cc -x c -M -I${FileLocations.FRAMEWORKS_DIR} ${r_filePath}`;
     const out = child_process.exec(cmd, { encoding: "utf8" }, (err, out) => {
       if (err) {
-        console.error(err);
-        process.exit(1);
+        fail(err);
       }
       const lines = out.split("\\\n");
       lines.shift();
@@ -25,8 +25,8 @@ const getDependenciesFromPreprocessor = function (filePath) {
   });
 };
 
-const expandMacros = function (filePath) { 
-  return new Promise((finish) => {
+const expandMacros = function (filePath) {
+  return new Promise((finish, fail) => {
     const source = fs.readFileSync(filePath, "utf-8");
     const lines = source.split("\n");
     const outLines = [];
@@ -39,22 +39,29 @@ const expandMacros = function (filePath) {
       }
     }
     let adjSource = outLines.join("\n");
-    getDependenciesFromPreprocessor(filePath).then((dependencies) => {
-      if (dependencies.size > 0) {
-        adjSource = adjSource.replace(/'/g, "`");
-        adjSource = adjSource.replace(/%/g, "%%");
-        let cmd = `printf %s '\n${adjSource}\n' | cc -x c -E -C -w -P -traditional -I${FileLocations.FRAMEWORKS_DIR}`;
-        for (const dep of dependencies) {
-          if (dep !== filePath) cmd += ` -imacros ${dep}`;
+    getDependenciesFromPreprocessor(filePath)
+      .then((dependencies) => {
+        if (dependencies.size > 0) {
+          adjSource = adjSource.replace(/'/g, "`");
+          adjSource = adjSource.replace(/%/g, "%%");
+          let cmd = `printf %s '\n${adjSource}\n' | cc -x c -E -C -w -P -traditional -I${FileLocations.FRAMEWORKS_DIR}`;
+          for (const dep of dependencies) {
+            if (dep !== filePath) cmd += ` -imacros ${dep}`;
+          }
+          cmd += " -";
+          child_process.exec(cmd, { encoding: "utf8" }, (err, stout) => {
+            if (err) {
+              fail(err);
+            }
+            finish({ path: filePath, contents: removeFirstAndLastChar(stout) });
+          });
+        } else {
+          finish({ path: filePath, contents: adjSource });
         }
-        cmd += " -";
-        child_process.exec(cmd, { encoding: "utf8" }, (err, stout) => {
-          finish({ path: filePath, contents: removeFirstAndLastChar(stout) });
-        });
-      } else {
-        finish({ path: filePath, contents: adjSource });
-      }
-    });
+      })
+      .catch((err) => {
+        fail(err);
+      });
   });
 };
 

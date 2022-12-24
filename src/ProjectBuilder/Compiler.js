@@ -24,37 +24,44 @@ const isFileUpToDate = function (filePath, lastCompile) {
 };
 
 const preprocess = async function (filePath, lastCompile) {
-  const tree = await getDependencyTree(filePath);
-  const files = flattenDependencyTree(tree);
-  const promises = [];
-  const preprocessedFiles = [];
-  for (const file of files) {
-    if (!isFileUpToDate(file, lastCompile)) {
-      promises.push(expandMacros(file));
-    } else {
-      promises.push(
-        new Promise((finish) => {
-          finish({
-            path: file
+  try {
+    const tree = await getDependencyTree(filePath);
+    const files = flattenDependencyTree(tree);
+    const promises = [];
+    const preprocessedFiles = [];
+    for (const file of files) {
+      if (!isFileUpToDate(file, lastCompile)) {
+        promises.push(expandMacros(file));
+      } else {
+        promises.push(
+          new Promise((finish) => {
+            finish({
+              path: file,
+            });
+          })
+        );
+      }
+    }
+    await Promise.all(promises)
+      .then((results) => {
+        for (const result of results) {
+          preprocessedFiles.push({
+            path: result.path,
+            contents: result.contents,
           });
-        })
-      );
-    }
-  }
-
-  await Promise.all(promises).then((results) => {
-    for (const result of results) {
-      preprocessedFiles.push({
-        path: result.path,
-        contents: result.contents,
+        }
+      })
+      .catch((err) => { 
+        throw new Error(err);
       });
-    }
-  });
-  const bundle = await getBundle();
-  return {
-    files: preprocessedFiles,
-    bundle,
-  };
+    const bundle = await getBundle();
+    return {
+      files: preprocessedFiles,
+      bundle,
+    };
+  } catch (e) {
+    throw new Error(e);
+  }
 };
 
 const compileFile = function (fileObj) {
@@ -85,22 +92,26 @@ const buildProject = function (mainFilePath, lastCompile) {
   let compilationMap = lastCompile ? lastCompile.compilationMap : new Map();
   return new Promise(async (finish, fail) => {
     const r_mainFilePath = path.resolve(mainFilePath);
-    const { files, bundle } = await preprocess(r_mainFilePath, lastCompile);
-    for (const file of files) {
-      if (!isFileUpToDate(file.path, lastCompile)) {
-        try {
-          compilationMap.set(file.path, compileFile(file));
-        } catch (err) {
-          fail(err);
+    try {
+      const { files, bundle } = await preprocess(r_mainFilePath, lastCompile);
+      for (const file of files) {
+        if (!isFileUpToDate(file.path, lastCompile)) {
+          try {
+            compilationMap.set(file.path, compileFile(file));
+          } catch (err) {
+            fail(err);
+          }
         }
       }
+      finish({
+        time: new Date().getTime(),
+        files,
+        compilationMap,
+        bundle,
+      });
+    } catch (e) {
+      fail(e);
     }
-    finish({
-      time: new Date().getTime(),
-      files,
-      compilationMap,
-      bundle,
-    });
   });
 };
 
