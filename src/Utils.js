@@ -34,8 +34,19 @@ const makeDirIfNeeded = function (dirPath) {
   }
 };
 
+const fileExistsWithCaseSync = function (filepath) {
+  var dir = path.dirname(filepath);
+  if (filepath === "/" || filepath === ".") return true;
+  var filenames = fs.readdirSync(dir);
+  if (filenames.indexOf(path.basename(filepath)) === -1) {
+    return false;
+  }
+  return fileExistsWithCaseSync(dir);
+};
+
 module.exports = {
   removeFirstAndLastChar,
   getFilesInDirectory,
   makeDirIfNeeded,
+  fileExistsWithCaseSync,
 };

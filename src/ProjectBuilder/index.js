@@ -36,18 +36,20 @@ const concatOutput = function (out) {
 
   const offset = code.split("\n").length;
 
+  const outFiles = [];
   for (const file of files) {
     const out = compilationMap.get(file.path);
+    outFiles.push({ ...file, ...out });
     code += out.code + "\n";
   }
 
-  return { code, compilationMap, offset };
+  return { code, compilationMap, offset, files: outFiles };
 };
 
 const writeDebugOutput = async function (out) {
-  const { code, compilationMap, offset } = concatOutput(out);
+  const { code, compilationMap, offset, files } = concatOutput(out);
 
-  const sourceMapFile = await createSourceMap(compilationMap.values(), offset);
+  const sourceMapFile = await createSourceMap(files, offset);
   fs.writeFileSync(
     FileLocations.BUILD_DIR_DEBUG + "/debug.js",
     code + "//# sourceMappingURL=" + sourceMapFile,

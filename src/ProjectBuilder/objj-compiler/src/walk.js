@@ -1,5 +1,4 @@
 import walk from "acorn-walk";
-import { getLineInfo } from "./objj-parser";
 import { SourceNode, SourceMapConsumer } from "source-map";
 
 import { Scope, FunctionScope, BlockScope } from "./scope";
@@ -1404,6 +1403,7 @@ export const pass2 = walk.make({
               (st.addedSelfToIvars = Object.create(null)))[identifier] ||
             (st.addedSelfToIvars[identifier] = [])
           ).push({ node, index: buffer.length() });
+
           buffer.concat("self.", node);
         }
       } else if (!reservedIdentifiers.test(identifier)) {

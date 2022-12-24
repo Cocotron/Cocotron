@@ -2,9 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const FileLocations = require("../FileLocations");
 const child_process = require("child_process");
-
-const { removeFirstAndLastChar } = require("../Utils");
-const { fail } = require("assert");
+const { removeFirstAndLastChar, fileExistsWithCaseSync } = require("../Utils");
 
 const getDependenciesFromPreprocessor = function (filePath) {
   return new Promise((finish, fail) => {
@@ -18,7 +16,8 @@ const getDependenciesFromPreprocessor = function (filePath) {
       lines.shift();
       const dependencies = new Set();
       for (const line of lines) {
-        dependencies.add(path.resolve(line.trim()));
+        const r = path.resolve(line.trim());
+        dependencies.add(r);
       }
       finish(dependencies);
     });

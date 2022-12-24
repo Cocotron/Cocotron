@@ -9650,6 +9650,7 @@
                 (st.addedSelfToIvars = Object.create(null)))[identifier] ||
               (st.addedSelfToIvars[identifier] = [])
             ).push({ node, index: buffer.length() });
+
             buffer.concat("self.", node);
           }
         } else if (!reservedIdentifiers.test(identifier)) {

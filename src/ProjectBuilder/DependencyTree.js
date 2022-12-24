@@ -1,6 +1,9 @@
 const fs = require("fs");
 const path = require("path");
-const { removeFirstAndLastChar } = require("../Utils.js");
+const {
+  removeFirstAndLastChar,
+  fileExistsWithCaseSync,
+} = require("../Utils.js");
 const FileLocations = require("../FileLocations");
 const { getDependenciesFromPreprocessor } = require("./Preprocessor");
 
@@ -43,13 +46,20 @@ const scanLineForImport = function (sourceCodeLine) {
   return str;
 };
 
-const _getDependencyTree = function (filePath, availableDependencies, parents) {
+const _getDependencyTree = function (
+  filePath,
+  availableDependencies,
+  parent,
+  parents
+) {
   const r_filePath = path.resolve(filePath);
 
   if (!parents) parents = [];
 
-  if (!fs.existsSync(r_filePath)) {
-    return null;
+  if (!fileExistsWithCaseSync(r_filePath)) {
+    if (parent) {
+      throw new Error(`Imported file ${filePath} in ${parent} does not exist.`);
+    }
   }
 
   if (parents.includes(r_filePath)) {
@@ -69,10 +79,12 @@ const _getDependencyTree = function (filePath, availableDependencies, parents) {
         scanLineForImport(trLine.substring(8)),
         r_filePath
       );
-      const tree = _getDependencyTree(importPath, availableDependencies, [
+      const tree = _getDependencyTree(
+        importPath,
+        availableDependencies,
         r_filePath,
-        ...parents,
-      ]);
+        [r_filePath, ...parents]
+      );
       if (tree) {
         dependencies.push(tree);
       }
