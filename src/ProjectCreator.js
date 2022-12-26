@@ -46,7 +46,7 @@ const createProject = function (projectName, isFramework = false) {
   writeFile(path.join(rpath, "Frameworks/Cocotron/Cocotron.j"), "");
 
   makeDirIfNeeded(path.join(rpath, "public"));
-  const runtimePath = path.join(__dirname + "/Runtime/Objective-J.js");
+  const runtimePath = path.join(__dirname + "/Runtime/Objective-J.h");
   const runtime = child_process.execSync(`cc -x c -E -C -w -P ${runtimePath}`, {
     encoding: "utf-8",
   });

@@ -12,7 +12,7 @@ const buildDebug = function (mainFilePath, lastCompile) {
   const startTime = performance.now();
   return new Promise((finish, fail) => {
     makeDirIfNeeded(FileLocations.BUILD_DIR_DEBUG);
-    buildProject(mainFilePath, lastCompile)
+    buildProject(mainFilePath, lastCompile, true)
       .then(async (out) => {
         await writeDebugOutput(out);
         const endTime = performance.now();
@@ -71,7 +71,7 @@ const buildRelease = function (mainFilePath) {
   const startTime = performance.now();
   return new Promise((finish, fail) => {
     makeDirIfNeeded(FileLocations.BUILD_DIR_RELEASE);
-    buildProject(mainFilePath)
+    buildProject(mainFilePath, null, false)
       .then(async (out) => {
         await writeReleaseOutput(out);
         const endTime = performance.now();

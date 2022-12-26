@@ -52,7 +52,8 @@ const expandMacros = function (filePath) {
             if (err) {
               fail(err);
             }
-            finish({ path: filePath, contents: removeFirstAndLastChar(stout) });
+            const out = removeFirstAndLastChar(stout.replace(/%%/g, "%"));
+            finish({ path: filePath, contents: out });
           });
         } else {
           finish({ path: filePath, contents: adjSource });

@@ -51,7 +51,7 @@ const preprocess = async function (filePath, lastCompile) {
           });
         }
       })
-      .catch((err) => { 
+      .catch((err) => {
         throw new Error(err);
       });
     const bundle = await getBundle();
@@ -64,18 +64,21 @@ const preprocess = async function (filePath, lastCompile) {
   }
 };
 
-const compileFile = function (fileObj) {
+const compileFile = function (fileObj, debug = true) {
   const result = ObjJCompiler.compile(fileObj.contents, fileObj.path, {
     acornOptions: {
       ecmaVersion: 2022,
       sourceType: "module",
     },
-    sourceMap: true,
-    sourceMapIncludeSource: true,
+    sourceMap: debug,
+    sourceMapIncludeSource: debug,
+    includeMethodFunctionNames: false,
+    includeMethodArgumentTypeSignatures: false,
   });
   if (!result.compiledCode) {
     const errors = result.warningsAndErrors;
     for (const err of errors) {
+      console.error(err);
       throw new Error(err.path + ": " + err.message);
     }
   }
@@ -88,7 +91,7 @@ const compileFile = function (fileObj) {
   };
 };
 
-const buildProject = function (mainFilePath, lastCompile) {
+const buildProject = function (mainFilePath, lastCompile, debug = true) {
   let compilationMap = lastCompile ? lastCompile.compilationMap : new Map();
   return new Promise(async (finish, fail) => {
     const r_mainFilePath = path.resolve(mainFilePath);
@@ -97,7 +100,7 @@ const buildProject = function (mainFilePath, lastCompile) {
       for (const file of files) {
         if (!isFileUpToDate(file.path, lastCompile)) {
           try {
-            compilationMap.set(file.path, compileFile(file));
+            compilationMap.set(file.path, compileFile(file, debug));
           } catch (err) {
             fail(err);
           }
