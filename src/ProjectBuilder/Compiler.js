@@ -72,8 +72,8 @@ const compileFile = function (fileObj, debug = true) {
     },
     sourceMap: debug,
     sourceMapIncludeSource: debug,
-    includeMethodFunctionNames: false,
-    includeMethodArgumentTypeSignatures: false,
+    includeMethodFunctionNames: debug,
+    includeMethodArgumentTypeSignatures: debug,
   });
   if (!result.compiledCode) {
     const errors = result.warningsAndErrors;
