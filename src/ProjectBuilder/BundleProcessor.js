@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const less = require("less");
+const { transform } = require("buble-jsx-only");
 
 const { ResourceMimeTypes, encodeResource } = require("./ResourceProcessor");
 const FileLocations = require("../FileLocations");
@@ -10,6 +11,19 @@ let PACKAGE = {};
 if (fs.existsSync(FileLocations.PROJECT_PACKAGE)) {
   PACKAGE = require(FileLocations.PROJECT_PACKAGE);
 }
+
+/**
+ * A "Cib" is just JSX, representing freeze-dried objects in a hierarchy
+ * @param {*} source
+ * @returns
+ */
+const compileCib = function (source) {
+  const out = transform(source, {
+    jsx: "O",
+    jsxFragment: "null",
+  });
+  return out.code;
+};
 
 const getBundle = async function () {
   const bundlePaths = [];
@@ -21,10 +35,20 @@ const getBundle = async function () {
     bundlePaths.push(path.join(FileLocations.FRAMEWORKS_DIR, framework));
   }
 
+  const cibCode = {};
   const base64Resources = {};
   const lessPromises = [];
+
   for (const bundle of bundlePaths) {
     const bundlePath = path.resolve(bundle);
+
+    //compile any Cib files
+    const cibFiles = getFilesInDirectory(bundlePath, [".cib"]);
+    for (const cib of cibFiles) {
+      const source = fs.readFileSync(path.resolve(cib), "utf-8");
+      const name = path.relative(bundlePath, cib);
+      cibCode[name.substring(0, name.lastIndexOf("."))] = compileCib(source);
+    }
     //get the resources
     const resourcesDir = path.join(bundlePath, "resources");
     if (fs.existsSync(resourcesDir)) {
@@ -80,6 +104,7 @@ const getBundle = async function () {
   }
 
   return {
+    cibs: cibCode,
     resources: base64Resources,
     styles: styles,
   };

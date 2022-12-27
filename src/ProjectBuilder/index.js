@@ -31,8 +31,8 @@ const concatOutput = function (out) {
   const { bundle, compilationMap, files } = out;
 
   let code = "\nvar __$objj_bundle = ";
-  const { resources, styles } = bundle;
-  code += `${JSON.stringify({ resources, styles })}\n\n`;
+  const { resources, styles, cibs } = bundle;
+  code += `${JSON.stringify({ resources, styles, cibs })}\n\n`;
 
   const offset = code.split("\n").length;
 
@@ -43,11 +43,11 @@ const concatOutput = function (out) {
     code += out.code + "\n";
   }
 
-  return { code, compilationMap, offset, files: outFiles };
+  return { code, offset, files: outFiles };
 };
 
 const writeDebugOutput = async function (out) {
-  const { code, compilationMap, offset, files } = concatOutput(out);
+  const { code, offset, files } = concatOutput(out);
 
   const sourceMapFile = await createSourceMap(files, offset);
   fs.writeFileSync(

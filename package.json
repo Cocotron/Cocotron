@@ -4,13 +4,14 @@
     "description": "Compiler and build system for Objective-J and Cocotron",
     "license": "MIT",
     "dependencies": {
+        "buble-jsx-only": "^0.21.0",
         "express": "^4.18.2",
         "less": "^4.1.3",
+        "mini-svg-data-uri": "^1.4.4",
         "source-map": "^0.7.4",
-        "terser": "^5.16.1",
-        "mini-svg-data-uri": "^1.4.4"
-    }, 
-    "bin" : {
-        "cocotron" : "./src/bin/Cocotron.js"
+        "terser": "^5.16.1"
+    },
+    "bin": {
+        "cocotron": "./src/bin/Cocotron.js"
     }
 }

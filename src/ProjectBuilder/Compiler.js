@@ -119,6 +119,6 @@ const buildProject = function (mainFilePath, lastCompile, debug = true) {
 };
 
 module.exports = {
-  compileFile,
+  compileFile, 
   buildProject,
 };
