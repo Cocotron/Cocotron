@@ -1,7 +1,7 @@
 const FileLocations = require("../FileLocations");
 const { buildDebug } = require("../ProjectBuilder");
 
-const PACKAGE = require(FileLocations.PROJECT_PACKAGE);
+const INFO = require(FileLocations.PROJECT_INFO);
 
 let app,
   express = require("express"),
@@ -25,8 +25,8 @@ fs.watch(FileLocations.SRC_DIR, { recursive: true }, () => {
   isDirty = true;
 });
 
-if (path.dirname(PACKAGE.main) !== FileLocations.SRC_DIR) {
-  fs.watch(path.dirname(PACKAGE.main), { recursive: true }, () => {
+if (path.dirname(INFO.main) !== FileLocations.SRC_DIR) {
+  fs.watch(path.dirname(INFO.main), { recursive: true }, () => {
     isDirty = true;
   });
 }
@@ -36,7 +36,7 @@ app.get("/", async (_, res) => {
     const compileHtml = fs.readFileSync(__dirname + "/Compiling.html", "utf-8");
     console.log("Building DEBUG...");
     try {
-      lastCompile = await buildDebug(path.resolve(PACKAGE.main), lastCompile);
+      lastCompile = await buildDebug(path.resolve(INFO.main), lastCompile);
       isDirty = false;
       res.send(compileHtml);
     } catch (e) {

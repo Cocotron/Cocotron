@@ -19,17 +19,17 @@ if (args.length > 1) {
       createProject(projectName, args.includes("--framework"));
     }
   } else if (cmd === "release") {
-    if (fs.existsSync(FileLocations.PROJECT_PACKAGE)) {
-      const PACKAGE = require(FileLocations.PROJECT_PACKAGE);
-      if(PACKAGE.isFramework) {
-        fs.cpSync(FileLocations.SRC_DIR, path.join(FileLocations.FRAMEWORKS_DIR, PACKAGE.name), {recursive: true});
-        fs.cpSync(FileLocations.PROJECT_PACKAGE, path.join(FileLocations.FRAMEWORKS_DIR, PACKAGE.name, "package.json"));
+    if (fs.existsSync(FileLocations.PROJECT_INFO)) {
+      const INFO = require(FileLocations.PROJECT_INFO);
+      if(INFO.isFramework) {
+        fs.cpSync(FileLocations.SRC_DIR, path.join(FileLocations.FRAMEWORKS_DIR, INFO.name), {recursive: true});
+        fs.cpSync(FileLocations.PROJECT_INFO, path.join(FileLocations.FRAMEWORKS_DIR, INFO.name, "info.json"));
         return;
       }
-      if (!PACKAGE.main) {
-        throw new Error(`"main" file is undefined in package.json.`);
+      if (!INFO.main) {
+        throw new Error(`"main" file is undefined in info.json.`);
       }
-      const mainFile = path.resolve(PACKAGE.main);
+      const mainFile = path.resolve(INFO.main);
       buildRelease(mainFile);
     }
   }

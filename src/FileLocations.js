@@ -11,7 +11,7 @@ const FileLocations = {
   BUILD_DIR_RELEASE: path.resolve(rootPath + "/public/build/Release"),
   SRC_DIR: path.resolve(rootPath + "/src"),
   FRAMEWORKS_DIR: path.resolve(rootPath + "/Frameworks"),
-  PROJECT_PACKAGE: path.resolve(rootPath + "/package.json"),
+  PROJECT_INFO: path.resolve(rootPath + "/info.json"),
 };
 
 module.exports = FileLocations;

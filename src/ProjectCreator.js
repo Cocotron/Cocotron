@@ -3,7 +3,7 @@ const path = require("path");
 const child_process = require("child_process");
 const { makeDirIfNeeded } = require("./Utils");
 
-const packageJsonTemplate = function (projectName, isFramework) {
+const infoJsonTemplate = function (projectName, isFramework) {
   return {
     name: projectName,
     version: "0.0.1",
@@ -26,8 +26,8 @@ const createProject = function (projectName, isFramework = false) {
 
   makeDirIfNeeded(rpath);
   writeFile(
-    path.join(rpath, "package.json"),
-    JSON.stringify(packageJsonTemplate(projectName, isFramework), null, "\t")
+    path.join(rpath, "info.json"),
+    JSON.stringify(infoJsonTemplate(projectName, isFramework), null, "\t")
   );
   makeDirIfNeeded(path.join(rpath, "src"));
 

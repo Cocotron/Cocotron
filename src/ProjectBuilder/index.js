@@ -31,8 +31,8 @@ const concatOutput = function (out) {
   const { bundle, compilationMap, files } = out;
 
   let code = "\nvar __$objj_bundle = ";
-  const { resources, styles, cibs } = bundle;
-  code += `${JSON.stringify({ resources, styles, cibs })}\n\n`;
+  const { info, resources, styles, cibs } = bundle;
+  code += `${JSON.stringify({ info, resources, styles, cibs })}\n\n`;
 
   const offset = code.split("\n").length;
 

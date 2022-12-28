@@ -7,9 +7,9 @@ const { ResourceMimeTypes, encodeResource } = require("./ResourceProcessor");
 const FileLocations = require("../FileLocations");
 const { getFilesInDirectory } = require("../Utils");
 
-let PACKAGE = {};
-if (fs.existsSync(FileLocations.PROJECT_PACKAGE)) {
-  PACKAGE = require(FileLocations.PROJECT_PACKAGE);
+let INFO = {};
+if (fs.existsSync(FileLocations.PROJECT_INFO)) {
+  INFO = require(FileLocations.PROJECT_INFO);
 }
 
 /**
@@ -30,7 +30,7 @@ const getBundle = async function () {
   //add the main bundle
   bundlePaths.push(FileLocations.SRC_DIR);
   //add the frameworks
-  const frameworks = PACKAGE.frameworks || [];
+  const frameworks = INFO.frameworks || [];
   for (const framework of frameworks) {
     bundlePaths.push(path.join(FileLocations.FRAMEWORKS_DIR, framework));
   }
@@ -104,6 +104,7 @@ const getBundle = async function () {
   }
 
   return {
+    info: INFO,
     cibs: cibCode,
     resources: base64Resources,
     styles: styles,
