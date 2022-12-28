@@ -1129,7 +1129,20 @@ GLOBAL(objj_styleInject) = function(css) {
     style.innerHTML = css;
     document.head.appendChild(style);
     return css;
-}
+};
+
+GLOBAL(objj_isString) = function (obj) {
+    return (obj && typeof obj === "string") || obj instanceof String;
+};
+  
+GLOBAL(objj_isFunction) = function (obj) {
+    return obj && typeof obj === "function";
+  };
+  
+GLOBAL(objj_isUndefinedOrNull) = function (obj) {
+    return obj === null || obj === undefined;
+};
+
 
 objj_class.prototype.toString = objj_object.prototype.toString = function()
 {
