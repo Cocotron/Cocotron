@@ -1,2 +1,6 @@
 /node_modules 
+/src/ProjectBuilder/cib-compiler/node_modules
+/src/ProjectBuilder/cib-compiler/dist
+/src/ProjectBuilder/objj-compiler/dist
+/src/ProjectBuilder/objj-compiler/node_modules
 .DS_Store
