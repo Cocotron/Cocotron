@@ -52,6 +52,21 @@ GLOBAL(O) = function (tagNameOrClass, props, ...children) {
           "initWithProps:",
           rest || {}
         );
+        //awake From Cib
+        const awakeSel = sel_getUid("awakeFromCib")
+        if (
+          cpObj.isa.objj_msgSend1(
+            cpObj,
+            "respondsToSelector:",
+            awakeSel
+          )
+        ) {
+          cpObj.isa.objj_msgSend1(
+            cpObj,
+            "performSelector:",
+            awakeSel
+          );
+        }
       }
     }
     if (cpObj) {
