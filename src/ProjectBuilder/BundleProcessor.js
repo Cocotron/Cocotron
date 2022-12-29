@@ -1,7 +1,8 @@
 const fs = require("fs");
 const path = require("path");
 const less = require("less");
-const { transform } = require("buble-jsx-only");
+const { transform } = require("./cib-compiler/dist/buble.cjs");
+const { minify } = require("terser");
 
 const { ResourceMimeTypes, encodeResource } = require("./ResourceProcessor");
 const FileLocations = require("../FileLocations");
@@ -17,22 +18,24 @@ if (fs.existsSync(FileLocations.PROJECT_INFO)) {
  * @param {*} source
  * @returns
  */
-const compileCib = function (source) {
+const compileCib = async function (source) {
   const out = transform(source, {
     jsx: "O",
     jsxFragment: "null",
   });
-  return out.code;
+  const minified = await minify(out.code, { module: true });
+  return minified.code;
 };
 
 const getBundle = async function () {
-  const bundlePaths = [];
-  //add the main bundle
-  bundlePaths.push(FileLocations.SRC_DIR);
+  const bundlePaths = new Set();
+  //add the main bundle, the same directory as the main entry file
+  bundlePaths.add(path.resolve(path.dirname(INFO.main)));
+  bundlePaths.add(FileLocations.SRC_DIR);
   //add the frameworks
   const frameworks = INFO.frameworks || [];
   for (const framework of frameworks) {
-    bundlePaths.push(path.join(FileLocations.FRAMEWORKS_DIR, framework));
+    bundlePaths.add(path.join(FileLocations.FRAMEWORKS_DIR, framework));
   }
 
   const cibCode = {};
@@ -47,7 +50,9 @@ const getBundle = async function () {
     for (const cib of cibFiles) {
       const source = fs.readFileSync(path.resolve(cib), "utf-8");
       const name = path.relative(bundlePath, cib);
-      cibCode[name.substring(0, name.lastIndexOf("."))] = compileCib(source);
+      cibCode[name.substring(0, name.lastIndexOf("."))] = await compileCib(
+        source
+      );
     }
     //get the resources
     const resourcesDir = path.join(bundlePath, "resources");

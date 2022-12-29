@@ -4,17 +4,49 @@ const child_process = require("child_process");
 const { makeDirIfNeeded } = require("./Utils");
 
 const infoJsonTemplate = function (projectName, isFramework) {
-  return {
+  let info = {
     name: projectName,
     version: "0.0.1",
     description: "",
     isFramework: isFramework,
     main: isFramework ? `tests/tests.j` : "src/main.j",
   };
+  if (!isFramework) {
+    info.mainCibFile = "MainMenu";
+  }
+  return info;
 };
 
-const mainTemplate = `\n#import <Cocotron/Cocotron.j>\n\nalert("Hello from Cocotron!");\n\n`;
-const htmlTemplate = `<html>\n<head>\n<title>Cocotron</title>\n</head>\n<body></body>\n</html>`;
+const mainTemplate = `\n#import "AppDelegate.j"\n\nCTApplicationMain();\n\n`;
+const htmlTemplate = function (projectName) {
+  return `<html>\n<head>\n<title>${projectName}</title>\n</head>\n<body></body>\n</html>`;
+};
+
+const AppDelegateCode = `\n#import <Cocotron/Cocotron.j>\n\n
+@implementation AppDelegate : CTObject 
+{
+
+}
+
+-(void) applicationDidFinishLaunching:(CTNotification)aNotification 
+{
+    //code here
+}
+
+@end
+`;
+
+const MainMenuCib = `var delegate;
+<_$cib>
+    <_$objects>
+      <CTApplication ref={(e) => owner = e} />
+      <AppDelegate ref={(e) => delegate = e} />
+    </_$objects>
+    <_$connections>
+        <_$outlet value={delegate} object={owner} path={"delegate"} />
+    </_$connections>
+</_$cib>
+owner;`;
 
 const createProject = function (projectName, isFramework = false) {
   const rpath = path.resolve(path.join(process.cwd(), projectName));
@@ -37,6 +69,8 @@ const createProject = function (projectName, isFramework = false) {
     writeFile(path.join(rpath, "tests/tests.j"), "");
   } else {
     writeFile(path.join(rpath, "src/main.j"), mainTemplate);
+    writeFile(path.join(rpath, "src/AppDelegate.j"), AppDelegateCode);
+    writeFile(path.join(rpath, "src/MainMenu.cib"), MainMenuCib);
   }
 
   makeDirIfNeeded(path.join(rpath, "src/styles"));
@@ -51,7 +85,7 @@ const createProject = function (projectName, isFramework = false) {
     encoding: "utf-8",
   });
   writeFile(path.join(rpath, "public/Objective-J.js"), runtime);
-  writeFile(path.join(rpath, "public/index.html"), htmlTemplate);
+  writeFile(path.join(rpath, "public/index.html"), htmlTemplate(projectName));
 };
 
 const writeFile = function (path, contents) {

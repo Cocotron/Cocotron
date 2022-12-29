@@ -1,0 +1,71 @@
+{
+  "name": "buble-jsx-only",
+  "version": "0.21.0",
+  "description": "Bublé, but just JSX.",
+  "main": "dist/buble.cjs.js",
+  "module": "dist/buble.es.js",
+  "browser": {
+    "dist/buble.cjs.js": "./dist/buble-browser.cjs.js",
+    "dist/buble.es.js": "./dist/buble-browser.es.js"
+  },
+  "unpkg": "dist/buble-browser-deps.umd.js",
+  "files": [ 
+    "src",
+    "dist",
+    "register.js",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "rollup -c",
+    "test": "nyc mocha test/test.js",
+    "pretest": "npm run build",
+    "test:register": "echo '\"use strict\";' | cat - src/program/Node.js | sed 's/export default/module.exports =/' | node -r ./register.js",
+    "test:full": "npm run test && npm run test:register && npm run lint",
+    "test:bundlers": "npm run test:bundlers:rollup && npm run test:bundlers:webpack && npm run test:bundlers:parcel",
+    "test:bundlers:rollup": "test \"$(npx rollup -c test/bundlers/rollup.config.js | node)\" = 'var x = 4'",
+    "test:bundlers:webpack": "cd test/bundlers && mkdir -p node_modules && npm i webpack && node webpack.js && test \"$(node dist/main.js)\" = 'var x = 4'",
+    "test:bundlers:parcel": "cd test/bundlers && mkdir -p node_modules && npm i parcel && npx parcel build index.js --no-cache && test \"$(node dist/index.js)\" = 'var x = 4'",
+    "prepublish": "npm test",
+    "lint": "eslint bin/ src/ test/test.js test/utils/ register.js rollup.*.js scripts/"
+  }, 
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vizhub-open-core/buble-jsx-only"
+  },
+  "keywords": [
+    "javascript",
+    "transpilation",
+    "compilation",
+    "JSX"
+  ],
+  "author": "Rich Harris",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bublejs/buble/issues"
+  },
+  "homepage": "https://github.com/bublejs/buble#README",
+  "devDependencies": {
+    "@rollup/plugin-buble": "^0.21.3",
+    "@rollup/plugin-commonjs": "^19.0.0",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^13.0.0",
+    "console-group": "^0.3.3",
+    "eslint": "^7.30.0",
+    "glob": "^7.1.7",
+    "mocha": "^9.0.2",
+    "nyc": "^15.1.0",
+    "rimraf": "^3.0.2",
+    "rollup": "^2.53.1",
+    "source-map": "0.7.3",
+    "source-map-support": "^0.5.19",
+    "test262": "git+https://github.com/tc39/test262.git#4f1155c566a222238fd86f179c6635ecb4c289bb",
+    "test262-stream": "^1.4.0"
+  },
+  "dependencies": {
+    "acorn": "^8.4.1",
+    "acorn-jsx": "^5.3.2",
+    "chalk": "^4.1.1",
+    "magic-string": "^0.25.7",
+    "minimist": "^1.2.5"
+  }
+}

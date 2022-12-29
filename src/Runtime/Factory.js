@@ -1,9 +1,10 @@
 GLOBAL(O) = function (tagNameOrClass, props, ...children) { 
     
-    if (!tagNameOrClass) {
+    if (!tagNameOrClass || 
+      ["_$connections", "_$objects", "_$cib"].includes(tagNameOrClass)) {
       return children;
     }
-  
+ 
     if (tagNameOrClass === "_$outlet") {
       const { value, object, path } = props;
       return object.isa.objj_msgSend2(

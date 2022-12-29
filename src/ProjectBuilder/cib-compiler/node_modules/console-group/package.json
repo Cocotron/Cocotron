@@ -1,0 +1,35 @@
+{
+  "name": "console-group",
+  "version": "0.3.3",
+  "description": "basic console.group implementation for node",
+  "main": "dist/console-group.cjs.js",
+  "module": "dist/console-group.es.js",
+  "jsnext:main": "dist/console-group.es.js",
+  "scripts": {
+    "test": "node test/test.js",
+    "build": "rollup -c",
+    "pretest": "npm run build",
+    "prepublish": "npm test"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rich-harris/node-console-group"
+  },
+  "keywords": [
+    "console"
+  ],
+  "author": "Rich Harris",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rich-harris/node-console-group/issues"
+  },
+  "homepage": "https://github.com/rich-harris/node-console-group",
+  "devDependencies": {
+    "rollup": "^0.34.13",
+    "rollup-plugin-buble": "^0.13.0"
+  }
+}
